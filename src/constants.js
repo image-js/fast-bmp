@@ -17,6 +17,12 @@ module.exports = {
             BI_CMYK: 0x000B,
             BI_CMYKRLE8: 0x000C,
             BI_CMYKRLE4: 0x000D
+        },
+        GamutMappingIntent: {
+            LCS_GM_ABS_COLORIMETRIC: 0x00000008,
+            LCS_GM_BUSINESS: 0x00000001,
+            LCS_GM_GRAPHICS: 0x00000002,
+            LCS_GM_IMAGES: 0x00000004
         }
     }
 };
