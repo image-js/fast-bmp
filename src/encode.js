@@ -3,22 +3,22 @@
 const IOBuffer = require('iobuffer');
 const constants = require('./constants');
 const tableLeft = [];
-for(var i=0; i<=8; i++) {
+for (var i = 0; i <= 8; i++) {
     tableLeft.push(0b11111111 << i);
 }
-module.exports = function(imageData) {
-    if(imageData.bitDepth !== 1) {
+module.exports = function (imageData) {
+    if (imageData.bitDepth !== 1) {
         throw new Error('Only bitDepth of 1 is supported');
     }
-    if(!imageData.height || !imageData.width) {
+    if (!imageData.height || !imageData.width) {
         throw new Error('ImageData width and height are required');
     }
 
-    if(imageData.components !== 1) {
+    if (imageData.components !== 1) {
         throw new Error('Only 1 component is supported');
     }
 
-    if(imageData.channels !== 1) {
+    if (imageData.channels !== 1) {
         throw new Error('Only 1 channel is supported');
     }
 
@@ -50,20 +50,20 @@ function writePixelArray(io, imgData) {
     let relOffset = 0, iOffset = 8;
     io.mark();
     byteB = ioData.readUint8();
-    for(var i= imgData.height-1; i>=0; i--) {
+    for (var i = imgData.height - 1; i >= 0; i--) {
         const lastRow = (i === 0);
         io.reset();
-        io.skip(i*rowSize);
-        for(var j=0; j<dataRowSize; j++) {
-            const lastCol = ( j === dataRowSize -1 );
-            if(relOffset <= bitSkip && lastCol) {
+        io.skip(i * rowSize);
+        for (var j = 0; j < dataRowSize; j++) {
+            const lastCol = (j === dataRowSize - 1);
+            if (relOffset <= bitSkip && lastCol) {
                 // no need to read new data
                 io.writeByte((byteB << relOffset));
-                if(bitSkip === 0 && !lastRow) {
+                if (bitSkip === 0 && !lastRow) {
                     byteA = byteB;
                     byteB = ioData.readByte();
                 }
-            }  else if(relOffset === 0){
+            } else if (relOffset === 0) {
                 byteA = byteB;
                 byteB = ioData.readUint8();
                 io.writeByte(byteA);
@@ -72,7 +72,7 @@ function writePixelArray(io, imgData) {
                 byteB = ioData.readUint8();
                 io.writeByte(((byteA << relOffset) & tableLeft[relOffset]) | (byteB >> iOffset));
             }
-            if(lastCol) {
+            if (lastCol) {
                 offset += (bitOverflow || 8);
                 io.skip(skipSize);
                 relOffset = offset % 8;
@@ -82,7 +82,7 @@ function writePixelArray(io, imgData) {
             }
         }
     }
-    if(rowSize > dataRowSize) {
+    if (rowSize > dataRowSize) {
         // make sure last written byte is correct
         io.reset();
         io.skip(totalBytes - 1);
@@ -91,21 +91,13 @@ function writePixelArray(io, imgData) {
 
 }
 
-function writeGap1(io) {
-    io.skip(io.offset % 4);
-}
-
 function writeColorTable(io, imgData) {
     // Color table is optional for bitDepth >= 8
-    if(imgData.bitDepth > 8) return;
+    if (imgData.bitDepth > 8) return;
     // We only handle 1-bit images
     io
         .writeUint32(0x00000000) // black
         .writeUint32(0x00ffffff); //white
-}
-
-function writeCoreDIBHeader(io, imgData) {
-
 }
 
 function writeBitmapFileHeader(io, imageOffset) {
@@ -130,7 +122,7 @@ function writeBitmapV5Header(io, imgData) {
         .writeUint32(imgData.width * imgData.height * imgData.bitDepth) // bv5SizeImage - buffer size (optional if uncompressed)
         .writeInt32(0)  // bV5XPelsPerMeter - resolution
         .writeInt32(0)  // bV5YPelsPerMeter - resolution
-        .writeUint32(Math.pow(2,imgData.bitDepth))
+        .writeUint32(Math.pow(2, imgData.bitDepth))
         .writeUint32(Math.pow(2, imgData.bitDepth))
         .writeUint32(0xff000000) // bV5RedMask
         .writeUint32(0x00ff0000) // bV5GreenMask

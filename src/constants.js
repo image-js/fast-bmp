@@ -4,7 +4,7 @@ module.exports = {
     BITMAPV5HEADER: {
         LogicalColorSpace: { // https://msdn.microsoft.com/en-us/library/cc250396.aspx
             LCS_CALIBRATED_RGB: 0x00000000,
-            LCS_sRGB: 0x73524742,
+            LCS_sRGB: 0x73524742,  // eslint-disable-line camelcase
             LCS_WINDOWS_COLOR_SPACE: 0x57696E20
         },
         Compression: { // https://msdn.microsoft.com/en-us/library/cc250415.aspx
