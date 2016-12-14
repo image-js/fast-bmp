@@ -48,9 +48,7 @@ function writePixelArray(io, imgData) {
     const ioData = new IOBuffer(imgData.data);
     let offset = 0; // Current off set in the ioData
     let relOffset = 0, iOffset = 8;
-    console.log('row size', rowSize);
     io.mark();
-    debugger;
     byteB = ioData.readUint8();
     for(var i= imgData.height-1; i>=0; i--) {
         const lastRow = (i === 0);
@@ -61,13 +59,21 @@ function writePixelArray(io, imgData) {
             if(relOffset <= bitSkip && lastCol) {
                 // no need to read new data
                 io.writeByte((byteB << relOffset));
-            }  else {
+                if(bitSkip === 0 && !lastRow) {
+                    byteA = byteB;
+                    byteB = ioData.readByte();
+                }
+            }  else if(relOffset === 0){
+                byteA = byteB;
+                byteB = ioData.readUint8();
+                io.writeByte(byteA);
+            } else {
                 byteA = byteB;
                 byteB = ioData.readUint8();
                 io.writeByte(((byteA << relOffset) & tableLeft[relOffset]) | (byteB >> iOffset));
             }
             if(lastCol) {
-                offset += bitOverflow;
+                offset += (bitOverflow || 8);
                 io.skip(skipSize);
                 relOffset = offset % 8;
                 iOffset = 8 - relOffset;
@@ -82,7 +88,6 @@ function writePixelArray(io, imgData) {
         io.skip(totalBytes - 1);
         io.writeUint8(0);
     }
-    console.log(io._lastWrittenByte)
 
 }
 
