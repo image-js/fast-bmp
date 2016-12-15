@@ -14,19 +14,11 @@ module.exports = function (imageData) {
         throw new Error('ImageData width and height are required');
     }
 
-    if (imageData.components !== 1) {
-        throw new Error('Only 1 component is supported');
-    }
-
-    if (imageData.channels !== 1) {
-        throw new Error('Only 1 channel is supported');
-    }
-
     var io = new IOBuffer();
     // skip header
     io.skip(14);
     writeBitmapV5Header(io, imageData);
-    writeColorTable(io, imageData);
+    writeColorTable(io);
     const imageOffset = io.offset;
     writePixelArray(io, imageData);
 
@@ -91,9 +83,7 @@ function writePixelArray(io, imgData) {
 
 }
 
-function writeColorTable(io, imgData) {
-    // Color table is optional for bitDepth >= 8
-    if (imgData.bitDepth > 8) return;
+function writeColorTable(io) {
     // We only handle 1-bit images
     io
         .writeUint32(0x00000000) // black
