@@ -1,13 +1,16 @@
 # fast-bmp
 
-A library for encoding bmp image file format
+A library for encoding bmp image file format.
 
 # Supported features
+
 For now there is only support for 1-bit image encoding.
 
 # Usage
+
 ```js
 const bmp = require('fast-bmp');
+
  // 0 0 0 0 0
  // 0 1 1 1 0
  // 0 1 0 1 0
@@ -21,9 +24,7 @@ const imageData = {
     components: 1,
     channels: 1
 };
-// Encode returns a Uint8Array
+// Encode returns a Buffer in Node.js
 const encoded = bmp.encode(imageData);
-
-// In node.js
-fs.writeFileSync('image.bmp', Buffer.from(encoded));
+fs.writeFileSync('image.bmp', encoded);
 ```
