@@ -59,7 +59,7 @@ function writePixelArray(io, imgData) {
             if (relOffset <= bitSkip && lastCol) {
                 // no need to read new data
                 io.writeByte((byteB << relOffset));
-                if (bitSkip === 0 && !lastRow) {
+                if ((bitSkip === 0 || bitSkip === relOffset) && !lastRow) {
                     byteA = byteB;
                     byteB = ioData.readByte();
                 }

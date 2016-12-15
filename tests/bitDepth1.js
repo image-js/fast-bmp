@@ -61,4 +61,15 @@ describe('encode image with bitDepth of 1', function () {
         data.data = new Uint8Array([0b00000000, 0b00000000, 0b11111111, 0b11111111, 0b11111111, 0b11000000, 0b00000000, 0b00111111, 0b11111111, 0b11111111, 0b11111111]);
         testEncode(data, '42x2.bmp');
     });
+
+    it('encode image where skipBit can equal relOffset on the last column', function () {
+        data.width = 60;
+        data.height = 4;
+        data.data = new Uint8Array([0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+                                    0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111,
+                                    0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
+                                    0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111
+                                    ]);
+        testEncode(data, '60x4.bmp');
+    });
 });
