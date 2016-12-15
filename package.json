@@ -1,6 +1,6 @@
 {
   "name": "fast-bmp",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "A bmp image encoder",
   "main": "src/index.js",
   "repository": "git@github.com:image-js/fast-bmp.git",
