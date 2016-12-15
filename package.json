@@ -13,15 +13,17 @@
     "eslint": "^3.12.1",
     "eslint-config-cheminfo": "^1.6.0",
     "eslint-plugin-no-only-tests": "^1.1.0",
+    "istanbul": "^0.4.5",
     "mocha": "^3.2.0",
     "mocha-better-spec-reporter": "^3.1.0",
     "should": "^11.1.2"
   },
   "scripts": {
     "test": "npm run test-mocha && npm run eslint",
-    "test-mocha": "mocha --require should --recursive tests/",
-    "test-write": "FAST_BMP_WRITE_DATA_FILES=1 mocha --require should --recursive tests/",
+    "test-mocha": "mocha --require should --recursive test/",
+    "test-write": "FAST_BMP_WRITE_DATA_FILES=1 mocha --require should --recursive test/",
     "eslint": "eslint src",
-    "eslint-fix": "eslint --fix src"
+    "eslint-fix": "eslint --fix src",
+    "test-cov": "istanbul cover _mocha -- --require should --reporter dot --recursive"
   }
 }
