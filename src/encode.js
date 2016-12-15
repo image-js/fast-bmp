@@ -33,7 +33,7 @@ module.exports = function (imageData) {
     // write header at the end
     io.rewind();
     writeBitmapFileHeader(io, imageOffset);
-    return io.toArray();
+    return io.getBuffer();
 };
 
 function writePixelArray(io, imgData) {
