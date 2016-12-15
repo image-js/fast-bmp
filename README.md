@@ -1,5 +1,9 @@
 # fast-bmp
-
+  [![NPM version][npm-image]][npm-url]
+  [![build status][travis-image]][travis-url]
+  [![Test coverage][codecov-image]][codecov-url]
+  [![npm download][download-image]][download-url]
+  
 A library for encoding bmp image file format.
 
 # Supported features
@@ -28,3 +32,11 @@ const imageData = {
 const encoded = bmp.encode(imageData);
 fs.writeFileSync('image.bmp', encoded);
 ```
+[npm-image]: https://img.shields.io/npm/v/fast-bmp.svg?style=flat-square
+[npm-url]: https://www.npmjs.com/package/fast-bmp
+[travis-image]: https://img.shields.io/travis/image-js/fast-bmp/master.svg?style=flat-square
+[travis-url]: https://travis-ci.org/image-js/fast-bmp
+[codecov-image]: https://img.shields.io/codecov/c/github/image-js/fast-bmp.svg?style=flat-square
+[codecov-url]: https://codecov.io/gh/image-js/fast-bmp
+[download-image]: https://img.shields.io/npm/dm/fast-bmp.svg?style=flat-square
+[download-url]: https://www.npmjs.com/package/fast-bmp
