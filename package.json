@@ -24,6 +24,7 @@
     "test-write": "FAST_BMP_WRITE_DATA_FILES=1 mocha --require should --recursive test/",
     "eslint": "eslint src",
     "eslint-fix": "eslint --fix src",
-    "test-cov": "istanbul cover _mocha -- --require should --reporter dot --recursive"
+    "test-cov": "istanbul cover _mocha -- --require should --reporter dot --recursive",
+    "test-travis": "istanbul cover _mocha --report lcovonly -- --require should --reporter mocha-better-spec-reporter --recursive; npm run eslint"
   }
 }
