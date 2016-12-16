@@ -1,4 +1,9 @@
 'use strict';
 
-exports.encode = require('./encode');
+const Encoder = require('./BMPEncoder');
+
+exports.encode = function (data) {
+    const encoder = new Encoder(data);
+    return encoder.encode();
+};
 
