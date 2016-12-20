@@ -39,6 +39,13 @@ describe('encode image with bitDepth of 1', function () {
         testEncode(data, '5x1.bmp');
     });
 
+    it('encode a 6x4 image', function () {
+        data.width = 6;
+        data.height = 4;
+        data.data = new Uint8Array([0b11111100, 0b00001111, 0b11000000]);
+        testEncode(data, '6x4.bmp');
+    });
+
     it('encode a 10x2 image', function () {
          // 1 1 1 0 0 1 0 1 0 1
          // 1 0 1 0 1 0 0 1 1 1
