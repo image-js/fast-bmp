@@ -74,12 +74,10 @@ class BMPEncoder extends IOBuffer {
                     io.writeByte(((byteA << relOffset) & tableLeft[relOffset]) | (byteB >> iOffset));
                 }
                 if (lastCol) {
-                    offset += (bitOverflow || 8);
+                    offset += (bitOverflow || 0);
                     io.skip(skipSize);
                     relOffset = offset % 8;
                     iOffset = 8 - relOffset;
-                } else {
-                    offset += 8;
                 }
             }
         }
