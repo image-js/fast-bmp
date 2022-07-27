@@ -107,6 +107,8 @@ class BMPEncoder extends IOBuffer {
     }
 
     writeBitmapV5Header() {
+        const rowSize = Math.floor((this.bitDepth * this.width + 31) / 32) * 4;
+        const totalBytes = rowSize * this.height;
         // Size of the header
         this.encoded
             .writeUint32(124)   // Header size
@@ -115,7 +117,7 @@ class BMPEncoder extends IOBuffer {
             .writeUint16(1)               // bv5Planes - must be set to 1
             .writeUint16(this.bitDepth) // bV5BitCount
             .writeUint32(constants.BITMAPV5HEADER.Compression.BI_RGB)  // bV5Compression - No compression
-            .writeUint32(this.width * this.height * this.bitDepth) // bv5SizeImage - buffer size (optional if uncompressed)
+            .writeUint32(totalBytes) // bv5SizeImage - size of pixel buffer (can be 0 if uncompressed)
             .writeInt32(0)  // bV5XPelsPerMeter - resolution
             .writeInt32(0)  // bV5YPelsPerMeter - resolution
             .writeUint32(Math.pow(2, this.bitDepth))
