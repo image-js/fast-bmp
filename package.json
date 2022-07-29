@@ -25,8 +25,7 @@
     "eslint-fix": "eslint --fix src",
     "prettier": "prettier --check src",
     "prettier-write": "prettier --write src",
-    "test-cov": "istanbul cover _mocha -- --require should --reporter dot --recursive",
-    "test-travis": "istanbul cover _mocha --report lcovonly -- --require should --reporter mocha-better-spec-reporter --recursive; npm run eslint"
+    "test-coverage": "jest --coverage"
   },
   "jest": {
     "testEnvironment": "node"
