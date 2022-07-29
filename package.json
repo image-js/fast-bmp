@@ -7,24 +7,28 @@
   "author": "Daniel Kostro <kostro.d@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "eslint-config-cheminfo": "^8.0.2",
     "iobuffer": "^3.1.0"
   },
   "devDependencies": {
-    "eslint": "^3.12.1",
-    "eslint-config-cheminfo": "^1.6.0",
-    "eslint-plugin-no-only-tests": "^1.1.0",
-    "istanbul": "^0.4.5",
-    "mocha": "^3.2.0",
+    "@jest/globals": "^28.1.3",
+    "eslint": "^8.20.0",
+    "jest": "^28.1.3",
     "mocha-better-spec-reporter": "^3.1.0",
-    "should": "^11.1.2"
+    "prettier": "^2.7.1"
   },
   "scripts": {
-    "test": "npm run test-mocha && npm run eslint",
-    "test-mocha": "mocha --require should --recursive test/",
-    "test-write": "FAST_BMP_WRITE_DATA_FILES=1 mocha --require should --recursive test/",
+    "test": "npm run test-jest && npm run eslint",
+    "test-jest": "jest",
+    "test-write": "FAST_BMP_WRITE_DATA_FILES=1 npm run test-jest",
     "eslint": "eslint src",
     "eslint-fix": "eslint --fix src",
+    "prettier": "prettier --check src",
+    "prettier-write": "prettier --write src",
     "test-cov": "istanbul cover _mocha -- --require should --reporter dot --recursive",
     "test-travis": "istanbul cover _mocha --report lcovonly -- --require should --reporter mocha-better-spec-reporter --recursive; npm run eslint"
+  },
+  "jest": {
+    "testEnvironment": "node"
   }
 }
