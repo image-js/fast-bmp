@@ -18,14 +18,14 @@
     "prettier": "^2.7.1"
   },
   "scripts": {
-    "test": "npm run test-jest && npm run eslint",
-    "test-jest": "jest",
-    "test-write": "FAST_BMP_WRITE_DATA_FILES=1 npm run test-jest",
     "eslint": "eslint src",
     "eslint-fix": "eslint --fix src",
+    "test": "npm run test-coverage && npm run eslint",
     "prettier": "prettier --check src",
     "prettier-write": "prettier --write src",
-    "test-coverage": "jest --coverage"
+    "test-coverage": "jest --coverage",
+    "test-watch": "jest --watch",
+    "test-write": "FAST_BMP_WRITE_DATA_FILES=1 npm run test-jest"
   },
   "jest": {
     "testEnvironment": "node"
