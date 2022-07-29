@@ -1,54 +1,16 @@
-name: Release a Node.js package
+name: Release
 
 on:
-  workflow_call:
-    inputs:
-      npm:
-        description: >
-          Whether the package will be published to npm. You must pass the
-          npm-token secret in that case.
-        type: boolean
-        default: false
-      node-version:
-        description: Version of Node.js used to run the npm publish steps.
-        type: string
-        default: 16.x
-      npm-setup-command:
-        description: Command used to setup the package before publishing to npm.
-        type: string
-        default: npm install
-    secrets:
-      github-token:
-        required: true
-      npm-token:
-        required: false
+  push:
+    branches:
+      - main
 
 jobs:
-  release-please:
-    runs-on: ubuntu-latest
-    outputs:
-      release_created: ${{ steps.release.outputs.release_created }}
-    steps:
-      - name: Get package name
-        run: echo "PACKAGE_NAME=$(jq .name package.json | tr -d '"')" >> $GITHUB_ENV
-      - uses: google-github-actions/release-please-action@v3
-        id: release
-        with:
-          token: ${{ secrets.github-token }}
-          release-type: node
-          package-name: ${{ env.PACKAGE_NAME }}
-          bump-minor-pre-major: true
-  npm-publish:
-    needs: release-please
-    if: ${{ inputs.npm && needs.release-please.outputs.release_created }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: ${{ inputs.node-version }}
-          registry-url: 'https://registry.npmjs.org'
-      - run: ${{ inputs.npm-setup-command }}
-      - run: npm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.npm-token }}
+  release:
+    # Documentation: https://github.com/zakodium/workflows#release
+    uses: zakodium/workflows/.github/workflows/release.yml@release-v1
+    with:
+      npm: true
+    secrets:
+      github-token: ${{ secrets.BOT_TOKEN }}
+      npm-token: ${{ secrets.NPM_BOT_TOKEN }}
