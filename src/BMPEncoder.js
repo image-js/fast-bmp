@@ -1,6 +1,6 @@
 'use strict';
 
-const IOBuffer = require('iobuffer');
+const { IOBuffer } = require('iobuffer');
 
 const constants = require('./constants');
 
@@ -36,7 +36,8 @@ class BMPEncoder extends IOBuffer {
     this.writePixelArray();
     this.encoded.rewind();
     this.writeBitmapFileHeader(offset);
-    return this.encoded.getBuffer();
+    const array = this.encoded.toArray();
+    return Buffer.from(array.buffer, array.byteOffset, array.byteLength);
   }
 
   writePixelArray() {
@@ -104,7 +105,7 @@ class BMPEncoder extends IOBuffer {
   writeBitmapFileHeader(imageOffset) {
     this.encoded
       .writeChars('BM') // 14 bytes bitmap file header
-      .writeInt32(this.encoded._lastWrittenByte) // Size of BMP file in bytes
+      .writeInt32(this.encoded.lastWrittenByte) // Size of BMP file in bytes
       .writeUint16(0)
       .writeUint16(0)
       .writeUint32(imageOffset);
