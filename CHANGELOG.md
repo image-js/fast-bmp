@@ -10,7 +10,11 @@
 
 
 <a name="0.0.1"></a>
+## [1.0.2](https://github.com/image-js/fast-bmp/compare/v1.0.1...v1.0.2) (2022-07-31)
+
+
+### Bug Fixes
+
+* update iobuffer ([#3](https://github.com/image-js/fast-bmp/issues/3)) ([d4a79b4](https://github.com/image-js/fast-bmp/commit/d4a79b44426713dfb2f3b6450e5d5be6d7e7d2b0))
+
 ## 0.0.1 (2016-12-14)
-
-
-
