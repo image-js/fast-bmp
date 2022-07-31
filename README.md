@@ -28,7 +28,7 @@ const imageData = {
   components: 1,
   channels: 1,
 };
-// Encode returns a Buffer in Node.js
+// Encode returns a Uint8Array.
 const encoded = bmp.encode(imageData);
 fs.writeFileSync('image.bmp', encoded);
 ```
