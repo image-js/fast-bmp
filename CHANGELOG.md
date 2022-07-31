@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.0.0](https://github.com/image-js/fast-bmp/compare/v1.0.2...v2.0.0) (2022-07-31)
+
+
+### ⚠ BREAKING CHANGES
+
+* always return a Uint8Array instead of Buffer (#5)
+
+### Miscellaneous Chores
+
+* always return a Uint8Array instead of Buffer ([#5](https://github.com/image-js/fast-bmp/issues/5)) ([e8e7a36](https://github.com/image-js/fast-bmp/commit/e8e7a3659f5869271c916a348a35a899f40e2ac0))
+
 ## [1.0.2](https://github.com/image-js/fast-bmp/compare/v1.0.1...v1.0.2) (2022-07-31)
 
 
