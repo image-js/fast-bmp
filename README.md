@@ -23,7 +23,7 @@ const bmp = require('fast-bmp');
 const imageData = {
   width: 5,
   height: 5,
-  data: new Uint8Array([0b000000011, 0b10010100, 0b11100000, 0b00000000]),
+  data: new Uint8Array([0b00000011, 0b10010100, 0b11100000, 0b00000000]),
   bitDepth: 1,
   components: 1,
   channels: 1,
