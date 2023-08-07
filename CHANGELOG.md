@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.2](https://github.com/image-js/fast-bmp/compare/v2.0.1...v2.0.2) (2023-08-07)
+
+
+### Documentation
+
+* add Zakodium as maintainer ([#14](https://github.com/image-js/fast-bmp/issues/14)) ([51c0971](https://github.com/image-js/fast-bmp/commit/51c09718a730c3a601ba89d2a107cfe0918f8c19))
+
 ## [2.0.1](https://github.com/image-js/fast-bmp/compare/v2.0.0...v2.0.1) (2022-09-29)
 
 
