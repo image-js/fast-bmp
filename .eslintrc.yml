@@ -5,3 +5,4 @@ overrides:
       sourceType: 'script'
     env:
       node: true
+      jest: true
