@@ -19,9 +19,9 @@
   "scripts": {
     "eslint": "eslint src",
     "eslint-fix": "eslint --fix src",
-    "test": "npm run test-only && npm run eslint && npm run prettier",
     "prettier": "prettier --check src",
     "prettier-write": "prettier --write src",
+    "test": "npm run test-only && npm run eslint && npm run prettier",
     "test-only": "jest --coverage",
     "test-watch": "jest --watch",
     "test-write": "FAST_BMP_WRITE_DATA_FILES=1 npm run test-jest"
