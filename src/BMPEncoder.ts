@@ -1,16 +1,31 @@
-'use strict';
+import { IOBuffer } from 'iobuffer';
 
-const { IOBuffer } = require('iobuffer');
+import { BITMAPV5HEADER } from './constants';
 
-const constants = require('./constants');
+export interface DataToEncode {
+  bitDepth: number;
+  height: number;
+  width: number;
+  data:
+    | (number | IOBuffer | ArrayBufferLike | ArrayBufferView | Buffer)
+    | undefined;
+  channels: number;
+  components: number;
+}
 
-const tableLeft = [];
+const tableLeft: number[] = [];
 for (let i = 0; i <= 8; i++) {
   tableLeft.push(0b11111111 << i);
 }
 
-class BMPEncoder extends IOBuffer {
-  constructor(data) {
+export default class BMPEncoder extends IOBuffer {
+  width: number;
+  height: number;
+  bitDepth: number;
+  channels: number;
+  components: number;
+  encoded: IOBuffer = new IOBuffer();
+  constructor(data: DataToEncode) {
     if (data.bitDepth !== 1) {
       throw new Error('Only bitDepth of 1 is supported');
     }
@@ -34,20 +49,20 @@ class BMPEncoder extends IOBuffer {
     this.writeColorTable();
     const offset = this.encoded.offset;
     this.writePixelArray();
+    const imageSize = this.encoded.offset;
     this.encoded.rewind();
-    this.writeBitmapFileHeader(offset);
+    this.writeBitmapFileHeader(offset, imageSize);
     return this.encoded.toArray();
   }
 
   writePixelArray() {
-    let io = this.encoded;
+    const io = this.encoded;
     const rowSize = Math.floor((this.bitDepth * this.width + 31) / 32) * 4;
     const dataRowSize = Math.ceil((this.bitDepth * this.width) / 8);
     const skipSize = rowSize - dataRowSize;
     const bitOverflow = (this.bitDepth * this.width) % 8;
     const bitSkip = bitOverflow === 0 ? 0 : 8 - bitOverflow;
     const totalBytes = rowSize * this.height;
-
     let byteA, byteB;
     let offset = 0; // Current off set in the ioData
     let relOffset = 0;
@@ -59,19 +74,27 @@ class BMPEncoder extends IOBuffer {
       io.reset();
       io.skip(i * rowSize);
       for (let j = 0; j < dataRowSize; j++) {
+        console.log('New offset:', io.lastWrittenByte);
         const lastCol = j === dataRowSize - 1;
         if (relOffset <= bitSkip && lastCol) {
-          // no need to read new data
+          // no need to read new data$
+          console.log('1');
           io.writeByte(byteB << relOffset);
           if ((bitSkip === 0 || bitSkip === relOffset) && !lastRow) {
             byteA = byteB;
             byteB = this.readByte();
           }
         } else if (relOffset === 0) {
+          console.log('2');
+          console.log('New offset:', io.lastWrittenByte);
+          console.log(byteA, byteB);
           byteA = byteB;
           byteB = this.readUint8();
+          console.log('New offset:', io.lastWrittenByte);
           io.writeByte(byteA);
+          console.log('New offset:', io.lastWrittenByte);
         } else {
+          console.log('3');
           byteA = byteB;
           byteB = this.readUint8();
           io.writeByte(
@@ -101,10 +124,11 @@ class BMPEncoder extends IOBuffer {
       .writeUint32(0x00ffffff); // white
   }
 
-  writeBitmapFileHeader(imageOffset) {
+  writeBitmapFileHeader(imageOffset: number, fileSize: number) {
+    console.log(fileSize, this.encoded.lastWrittenByte);
     this.encoded
       .writeChars('BM') // 14 bytes bitmap file header
-      .writeInt32(this.encoded.lastWrittenByte) // Size of BMP file in bytes
+      .writeInt32(fileSize) // Size of BMP file in bytes
       .writeUint16(0)
       .writeUint16(0)
       .writeUint32(imageOffset);
@@ -120,22 +144,20 @@ class BMPEncoder extends IOBuffer {
       .writeInt32(this.height) // bV5Height
       .writeUint16(1) // bv5Planes - must be set to 1
       .writeUint16(this.bitDepth) // bV5BitCount
-      .writeUint32(constants.BITMAPV5HEADER.Compression.BI_RGB) // bV5Compression - No compression
+      .writeUint32(BITMAPV5HEADER.Compression.BI_RGB) // bV5Compression - No compression
       .writeUint32(totalBytes) // bv5SizeImage - size of pixel buffer (can be 0 if uncompressed)
       .writeInt32(0) // bV5XPelsPerMeter - resolution
       .writeInt32(0) // bV5YPelsPerMeter - resolution
-      .writeUint32(Math.pow(2, this.bitDepth))
-      .writeUint32(Math.pow(2, this.bitDepth))
+      .writeUint32(2 ** this.bitDepth)
+      .writeUint32(2 ** this.bitDepth)
       .writeUint32(0xff000000) // bV5RedMask
       .writeUint32(0x00ff0000) // bV5GreenMask
       .writeUint32(0x0000ff00) // bV5BlueMask
       .writeUint32(0x000000ff) // bV5AlphaMask
-      .writeUint32(constants.BITMAPV5HEADER.LogicalColorSpace.LCS_sRGB)
+      .writeUint32(BITMAPV5HEADER.LogicalColorSpace.LCS_sRGB)
       .skip(36) // bV5Endpoints
       .skip(12) // bV5GammaRed, Green, Blue
-      .writeUint32(constants.BITMAPV5HEADER.GamutMappingIntent.LCS_GM_IMAGES)
+      .writeUint32(BITMAPV5HEADER.GamutMappingIntent.LCS_GM_IMAGES)
       .skip(12); // ProfileData, ProfileSize, Reserved
   }
 }
-
-module.exports = BMPEncoder;
