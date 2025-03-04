@@ -10,7 +10,6 @@ const data = {
 };
 
 describe('encode image with bitDepth of 1', () => {
-  /*
   it('encode a 5x5 image', () => {
     // 0 0 0 0 0
     // 0 1 1 1 0
@@ -94,7 +93,6 @@ describe('encode image with bitDepth of 1', () => {
     ]);
     testEncode(data, '42x2.bmp');
   });
-*/
   it('encode image where skipBit can equal relOffset on the last column', () => {
     data.width = 60;
     data.height = 4;

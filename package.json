@@ -15,7 +15,7 @@
     "lib-cjs"
   ],
   "dependencies": {
-    "iobuffer": "^5.1.0"
+    "iobuffer": "^5.4.0"
   },
   "devDependencies": {
     "@babel/plugin-transform-modules-commonjs": "^7.26.3",

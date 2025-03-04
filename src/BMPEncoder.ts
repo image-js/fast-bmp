@@ -49,7 +49,7 @@ export default class BMPEncoder extends IOBuffer {
     this.writeColorTable();
     const offset = this.encoded.offset;
     this.writePixelArray();
-    const imageSize = this.encoded.offset;
+    const imageSize = this.encoded.getWrittenByteLength();
     this.encoded.rewind();
     this.writeBitmapFileHeader(offset, imageSize);
     return this.encoded.toArray();
@@ -74,33 +74,28 @@ export default class BMPEncoder extends IOBuffer {
       io.reset();
       io.skip(i * rowSize);
       for (let j = 0; j < dataRowSize; j++) {
-        console.log('New offset:', io.lastWrittenByte);
         const lastCol = j === dataRowSize - 1;
         if (relOffset <= bitSkip && lastCol) {
           // no need to read new data$
-          console.log('1');
+
           io.writeByte(byteB << relOffset);
           if ((bitSkip === 0 || bitSkip === relOffset) && !lastRow) {
             byteA = byteB;
             byteB = this.readByte();
           }
         } else if (relOffset === 0) {
-          console.log('2');
-          console.log('New offset:', io.lastWrittenByte);
-          console.log(byteA, byteB);
           byteA = byteB;
           byteB = this.readUint8();
-          console.log('New offset:', io.lastWrittenByte);
+
           io.writeByte(byteA);
-          console.log('New offset:', io.lastWrittenByte);
         } else {
-          console.log('3');
           byteA = byteB;
           byteB = this.readUint8();
           io.writeByte(
             ((byteA << relOffset) & tableLeft[relOffset]) | (byteB >> iOffset)
           );
         }
+
         if (lastCol) {
           offset += bitOverflow || 0;
           io.skip(skipSize);
@@ -125,7 +120,6 @@ export default class BMPEncoder extends IOBuffer {
   }
 
   writeBitmapFileHeader(imageOffset: number, fileSize: number) {
-    console.log(fileSize, this.encoded.lastWrittenByte);
     this.encoded
       .writeChars('BM') // 14 bytes bitmap file header
       .writeInt32(fileSize) // Size of BMP file in bytes
