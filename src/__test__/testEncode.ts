@@ -1,13 +1,15 @@
-'use strict';
+import fs from 'node:fs';
+import path from 'node:path';
 
-const fs = require('fs');
-const path = require('path');
+import { encode } from '..';
+import type { DataToEncode } from '../BMPEncoder';
 
-const { expect } = require('@jest/globals');
-
-const encode = require('..').encode;
-
-module.exports = function testEncode(data, filename) {
+/**
+ * Testing function for BMP encoding.
+ * @param data - Data for encoding.
+ * @param filename - Filename for a file to write.
+ */
+export function testEncode(data: DataToEncode, filename: string) {
   const buffer = encode(data);
   if (process.env.FAST_BMP_WRITE_DATA_FILES) {
     fs.writeFileSync(path.join(__dirname, 'files', filename), buffer);
@@ -16,4 +18,4 @@ module.exports = function testEncode(data, filename) {
     const fileDataUint8 = Uint8Array.from(fileData);
     expect(buffer).toStrictEqual(fileDataUint8);
   }
-};
+}

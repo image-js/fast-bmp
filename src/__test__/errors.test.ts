@@ -1,6 +1,4 @@
-'use strict';
-
-const encode = require('..').encode;
+import { encode } from '..';
 
 describe('errors', () => {
   it('should throw if width or height are undefined or 0', () => {
@@ -18,6 +16,7 @@ describe('errors', () => {
     expect(() => {
       encode({
         width: 10,
+        height: 0,
         components: 1,
         bitDepth: 1,
         channels: 1,
