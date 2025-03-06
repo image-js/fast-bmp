@@ -5,9 +5,9 @@ import { encode } from '..';
 import type { DataToEncode } from '../BMPEncoder';
 
 /**
- * Testing function for BMP encoding
- * @param data
- * @param filename
+ * Testing function for BMP encoding.
+ * @param data - Data for encoding.
+ * @param filename - Filename for a file to write.
  */
 export function testEncode(data: DataToEncode, filename: string) {
   const buffer = encode(data);

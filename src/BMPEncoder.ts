@@ -3,11 +3,29 @@ import { IOBuffer } from 'iobuffer';
 import { BITMAPV5HEADER } from './constants';
 
 export interface DataToEncode {
+  /**
+   * Image bit depth.
+   */
   bitDepth: number;
+  /**
+   * Image height.
+   */
   height: number;
+  /**
+   * Image width.
+   */
   width: number;
+  /**
+   * Image data.
+   */
   data: IOBuffer | ArrayBufferLike | ArrayBufferView | Buffer;
+  /**
+   * Image number of channels.
+   */
   channels: number;
+  /**
+   * Image number of channels excluding alpha.
+   */
   components: number;
 }
 
