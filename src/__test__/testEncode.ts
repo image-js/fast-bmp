@@ -4,6 +4,11 @@ import path from 'node:path';
 import { encode } from '..';
 import type { DataToEncode } from '../BMPEncoder';
 
+/**
+ * Testing function for BMP encoding
+ * @param data
+ * @param filename
+ */
 export function testEncode(data: DataToEncode, filename: string) {
   const buffer = encode(data);
   if (process.env.FAST_BMP_WRITE_DATA_FILES) {

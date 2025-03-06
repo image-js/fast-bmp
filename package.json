@@ -1,6 +1,5 @@
 {
   "name": "fast-bmp",
-  "type": "module",
   "version": "2.0.1",
   "description": "A bmp image encoder",
   "main": "./lib/index.js",
@@ -12,7 +11,7 @@
   "files": [
     "src",
     "lib",
-    "lib-cjs"
+    "lib-esm"
   ],
   "dependencies": {
     "iobuffer": "^5.4.0"
@@ -20,13 +19,9 @@
   "devDependencies": {
     "@babel/plugin-transform-modules-commonjs": "^7.26.3",
     "@babel/preset-typescript": "^7.26.0",
-    "@eslint/eslintrc": "^3.3.0",
-    "@eslint/js": "^9.21.0",
-    "@jest/globals": "^29.7.0",
     "@types/jest": "^29.5.14",
     "eslint": "^9.21.0",
     "eslint-config-cheminfo-typescript": "^17.0.0",
-    "globals": "^16.0.0",
     "jest": "^29.1.1",
     "prettier": "^2.7.1",
     "rimraf": "^6.0.1",
@@ -39,8 +34,7 @@
     "prettier-write": "prettier --write src",
     "test": "npm run test-only && npm run eslint && npm run prettier && npm run check-types",
     "test-only": "jest --coverage",
-    "test-watch": "jest --watch",
-    "test-write": "FAST_BMP_WRITE_DATA_FILES=1 npm run test-jest",
+    "test-write": "FAST_BMP_WRITE_DATA_FILES=1 npm run test-only",
     "check-types": "tsc --noEmit",
     "clean": "rimraf lib lib-esm",
     "prepack": "npm run tsc",

@@ -6,9 +6,7 @@ export interface DataToEncode {
   bitDepth: number;
   height: number;
   width: number;
-  data:
-    | (number | IOBuffer | ArrayBufferLike | ArrayBufferView | Buffer)
-    | undefined;
+  data: IOBuffer | ArrayBufferLike | ArrayBufferView | Buffer;
   channels: number;
   components: number;
 }
@@ -76,7 +74,7 @@ export default class BMPEncoder extends IOBuffer {
       for (let j = 0; j < dataRowSize; j++) {
         const lastCol = j === dataRowSize - 1;
         if (relOffset <= bitSkip && lastCol) {
-          // no need to read new data$
+          // no need to read new data
 
           io.writeByte(byteB << relOffset);
           if ((bitSkip === 0 || bitSkip === relOffset) && !lastRow) {
