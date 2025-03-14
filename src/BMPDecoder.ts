@@ -1,82 +1,78 @@
-import * as fs from 'node:fs';
-import { buffer } from 'node:stream/consumers';
+import { IOBuffer } from 'iobuffer';
 
-import type { IOBuffer } from 'iobuffer';
+export default class BMPDecoder {
+  bufferData: IOBuffer;
+  pixelDataOffset: number;
+  width: number;
+  height: number;
+  bitDepth: number;
 
-import type { DataToEncode } from './BMPEncoder';
-
-import { encode } from '.';
-
-function decode(bufferData: IOBuffer) {
-  const signature = bufferData.readBytes(2);
-  if (signature[0] !== 67 && signature[1] !== 77) {
-    throw new Error('This is not a BMP file.');
-  }
-  const filesize = bufferData.readUint32();
-  bufferData.skip(4);
-  const offset = bufferData.readUint32();
-  const infoHeaderSize = bufferData.readUint32();
-  const width = bufferData.readUint32();
-  const height = bufferData.readUint32();
-  const planes = bufferData.readInt16();
-  const bitDepth = bufferData.readInt16();
-  const compression = bufferData.readUint32();
-  const imageSize = bufferData.readUint32();
-  const XpixelsPerM = bufferData.readUint32();
-  const YpixelsPerM = bufferData.readUint32();
-  const colorsUsed = bufferData.readUint32();
-  const colorsImportant = bufferData.readUint32();
-
-  const result = {
-    filesize,
-    offset,
-    infoHeaderSize,
-    width,
-    height,
-    planes,
-    bitDepth,
-    compression,
-    imageSize,
-    XpixelsPerM,
-    YpixelsPerM,
-    colorsUsed,
-    colorsImportant,
-  };
-
-  const rowSize = Math.floor((width + 31) / 32) * 4;
-  const dataRowSize = Math.ceil(width / 8);
-  const data = new Uint8Array(Math.ceil((width * height * bitDepth) / 8));
-
-  bufferData.seek(offset);
-
-  for (let i = 0; i < data.length; i++) {
-    const row = height - i - 1;
-
-    bufferData.skip(rowSize * row);
-
-    data[i] = bufferData.readByte();
-
-    bufferData.seek(offset);
+  constructor(bufferData: Buffer) {
+    this.bufferData = new IOBuffer(bufferData);
+    const formatCheck = this.bufferData.readBytes(2);
+    if (formatCheck[0] !== 0x42 && formatCheck[1] !== 0x4d) {
+      throw new Error(
+        'This is not a BMP image or the encoding is not correct.'
+      );
+    }
+    this.pixelDataOffset = this.bufferData.skip(8).readUint32();
+    this.width = this.bufferData.skip(4).readUint32();
+    this.height = this.bufferData.readUint32();
+    this.bitDepth = this.bufferData.seek(28).readUint16();
   }
 
-  return {
-    width,
-    height,
-    bitDepth,
-    channels: Math.ceil(bitDepth / 8),
-    components:
-      Math.ceil(bitDepth / 8) % 2 === 0
-        ? Math.ceil(bitDepth / 8) - 1
-        : Math.ceil(bitDepth / 8),
-    data,
-  };
+  decode() {
+    this.bufferData.seek(this.pixelDataOffset);
+    this.bufferData.setLittleEndian();
+
+    let currentNumber = 0;
+    let currentWordIndex = 0;
+    let currentWord = 0;
+    let currentDataIndex = 0;
+    const rowSize = Math.floor((this.width + 31) / 32) * 4;
+
+    const data = new Uint8Array(Math.ceil((this.height * this.width) / 8));
+
+    for (let row = 0; row < this.height; row++) {
+      const skipRow = this.height - row - 1;
+      this.bufferData.skip(skipRow * rowSize);
+      for (let col = 0; col < this.width; col++) {
+        const byte = Math.ceil((col + 1) / 8);
+
+        const bitIndex = col % 32;
+        if (col % 32 === 0) {
+          currentNumber = this.bufferData.readUint32();
+        }
+        const currentBit =
+          currentNumber & (1 << (byte * 8 - (bitIndex % 8) - 1));
+
+        if (currentWordIndex % 8 === 0 && currentWordIndex !== 0) {
+          data[currentDataIndex++] = currentWord;
+          currentWordIndex = 0;
+          currentWord = 0;
+        }
+
+        const mask = currentBit
+          ? 1 << (8 - (currentWordIndex % 8) - 1)
+          : 0 << (8 - (currentWordIndex % 8) - 1);
+        currentWord |= mask;
+
+        currentWordIndex++;
+      }
+      this.bufferData.seek(this.pixelDataOffset);
+    }
+    data[currentDataIndex] = currentWord;
+
+    return {
+      width: this.width,
+      height: this.height,
+      bitDepth: this.bitDepth,
+      channels: Math.ceil(this.bitDepth / 8),
+      components:
+        Math.ceil(this.bitDepth / 8) % 2 === 0
+          ? Math.ceil(this.bitDepth / 8) - 1
+          : Math.ceil(this.bitDepth / 8),
+      data,
+    };
+  }
 }
-
-const data = {
-  width: 5,
-  height: 5,
-  data: new Uint8Array([0b000000011, 0b10010100, 0b11100000, 0b00000000]),
-  bitDepth: 1,
-  components: 1,
-  channels: 1,
-};
