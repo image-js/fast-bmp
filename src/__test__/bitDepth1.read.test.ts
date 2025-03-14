@@ -1,14 +1,12 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { IOBuffer } from 'iobuffer';
-
-import { decode } from '../BMPDecoder';
+import BMPDecoder from '../BMPDecoder';
 import type { DataToEncode } from '../BMPEncoder';
 
 function testDecode(data: DataToEncode, filename: string) {
   const fileData = fs.readFileSync(path.join(__dirname, 'files', filename));
-  const decodedInfo = decode(new IOBuffer(fileData));
+  const decodedInfo = new BMPDecoder(fileData).decode();
   expect(decodedInfo).toEqual(data);
 }
 
@@ -21,8 +19,8 @@ const data = {
   channels: 1,
 };
 
-describe('encode image with bitDepth of 1', () => {
-  it('encode a 5x5 image', () => {
+describe('decode image with bitDepth of 1', () => {
+  it('decode a 5x5 image', () => {
     // 0 0 0 0 0
     // 0 1 1 1 0
     // 0 1 0 1 0
@@ -36,7 +34,7 @@ describe('encode image with bitDepth of 1', () => {
     testDecode(data, '5x5.bmp');
   });
 
-  it('encode a 1x5 image', () => {
+  it('decode a 1x5 image', () => {
     // 0
     // 1
     // 0
@@ -101,7 +99,7 @@ describe('encode image with bitDepth of 1', () => {
     data.height = 2;
     data.data = new Uint8Array([
       0b00000000, 0b00000000, 0b11111111, 0b11111111, 0b11111111, 0b11000000,
-      0b00000000, 0b00111111, 0b11111111, 0b11111111, 0b11111111,
+      0b00000000, 0b00111111, 0b11111111, 0b11111111, 0b11110000,
     ]);
     testDecode(data, '42x2.bmp');
   });
