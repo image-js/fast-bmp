@@ -32,13 +32,12 @@ export default class BMPDecoder {
     const rowSize = Math.floor((this.width + 31) / 32) * 4;
 
     const data = new Uint8Array(Math.ceil((this.height * this.width) / 8));
-
-    for (let row = 0; row < this.height; row++) {
-      const skipRow = this.height - row - 1;
-      this.bufferData.skip(skipRow * rowSize);
+    this.bufferData.seek(this.pixelDataOffset);
+    this.bufferData.mark();
+    for (let row = this.height - 1; row >= 0; row--) {
+      this.bufferData.skip(row * rowSize);
       for (let col = 0; col < this.width; col++) {
         const byte = Math.ceil((col + 1) / 8);
-
         const bitIndex = col % 32;
         if (col % 32 === 0) {
           currentNumber = this.bufferData.readUint32();
@@ -56,22 +55,19 @@ export default class BMPDecoder {
           ? 1 << (8 - (currentWordIndex % 8) - 1)
           : 0 << (8 - (currentWordIndex % 8) - 1);
         currentWord |= mask;
-
         currentWordIndex++;
       }
-      this.bufferData.seek(this.pixelDataOffset);
+      this.bufferData.reset();
     }
     data[currentDataIndex] = currentWord;
-
+    const channels = Math.ceil(this.bitDepth / 8);
+    const components = channels % 2 === 0 ? channels - 1 : channels;
     return {
       width: this.width,
       height: this.height,
       bitDepth: this.bitDepth,
-      channels: Math.ceil(this.bitDepth / 8),
-      components:
-        Math.ceil(this.bitDepth / 8) % 2 === 0
-          ? Math.ceil(this.bitDepth / 8) - 1
-          : Math.ceil(this.bitDepth / 8),
+      channels,
+      components,
       data,
     };
   }

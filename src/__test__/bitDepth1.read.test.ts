@@ -1,12 +1,17 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-import BMPDecoder from '../BMPDecoder';
-import type { DataToEncode } from '../BMPEncoder';
+import { decode } from '..';
+import type { ImageCodec } from '../BMPEncoder';
 
-function testDecode(data: DataToEncode, filename: string) {
+/**
+ * Helper function to check decoding results.
+ * @param data - Comparison data.
+ * @param filename - File to decode.
+ */
+function testDecode(data: ImageCodec, filename: string) {
   const fileData = fs.readFileSync(path.join(__dirname, 'files', filename));
-  const decodedInfo = new BMPDecoder(fileData).decode();
+  const decodedInfo = decode(fileData);
   expect(decodedInfo).toEqual(data);
 }
 
@@ -46,7 +51,7 @@ describe('decode image with bitDepth of 1', () => {
     testDecode(data, '1x5.bmp');
   });
 
-  it('encode a 5x1 image', () => {
+  it('decode a 5x1 image', () => {
     // 1 0 1 0 0
     data.width = 5;
     data.height = 1;

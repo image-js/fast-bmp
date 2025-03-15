@@ -2,7 +2,7 @@ import { IOBuffer } from 'iobuffer';
 
 import { BITMAPV5HEADER } from './constants';
 
-export interface DataToEncode {
+export interface ImageCodec {
   /**
    * Image bit depth.
    */
@@ -41,7 +41,7 @@ export default class BMPEncoder extends IOBuffer {
   channels: number;
   components: number;
   encoded: IOBuffer = new IOBuffer();
-  constructor(data: DataToEncode) {
+  constructor(data: ImageCodec) {
     if (data.bitDepth !== 1) {
       throw new Error('Only bitDepth of 1 is supported');
     }
