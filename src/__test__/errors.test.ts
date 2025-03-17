@@ -27,7 +27,7 @@ describe('errors', () => {
     }).toThrow(/width and height are required/);
   });
 
-  it('should throw if bitDepth not 1', () => {
+  it('should throw if bitDepth not 1 during encoding', () => {
     expect(() => {
       encode({
         width: 10,
@@ -43,5 +43,10 @@ describe('errors', () => {
     expect(() => {
       decode(fs.readFileSync('src/__test__/files/color-balance.png'));
     }).toThrow(/This is not a BMP image or the encoding is not correct./i);
+  });
+  it('should throw if bitDepth not 1 during decoding', () => {
+    expect(() => {
+      decode(fs.readFileSync('src/__test__/files/all_gray.bmp'));
+    }).toThrow(/only bitDepth of 1 is supported/i);
   });
 });

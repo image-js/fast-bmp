@@ -1,5 +1,7 @@
 import { IOBuffer } from 'iobuffer';
 
+import type { ImageCodec } from './BMPEncoder';
+
 export default class BMPDecoder {
   bufferData: IOBuffer;
   pixelDataOffset: number;
@@ -19,9 +21,12 @@ export default class BMPDecoder {
     this.width = this.bufferData.skip(4).readUint32();
     this.height = this.bufferData.readUint32();
     this.bitDepth = this.bufferData.seek(28).readUint16();
+    if (this.bitDepth !== 1) {
+      throw new Error('only bitDepth of 1 is supported');
+    }
   }
 
-  decode() {
+  decode(): ImageCodec {
     this.bufferData.seek(this.pixelDataOffset);
     this.bufferData.setLittleEndian();
 
