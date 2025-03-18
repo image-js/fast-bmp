@@ -34,7 +34,7 @@ describe('decode image with bitDepth of 1', () => {
     data.width = 5;
     data.height = 5;
     data.data = new Uint8Array([
-      0b000000011, 0b10010100, 0b11100000, 0b00000000,
+      0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0,
     ]);
     testDecode(data, '5x5.bmp');
   });
@@ -47,7 +47,7 @@ describe('decode image with bitDepth of 1', () => {
     // 1
     data.width = 1;
     data.height = 5;
-    data.data = new Uint8Array([0b01011000]);
+    data.data = new Uint8Array([0, 1, 0, 1, 1]);
     testDecode(data, '1x5.bmp');
   });
 
@@ -55,29 +55,22 @@ describe('decode image with bitDepth of 1', () => {
     // 1 0 1 0 0
     data.width = 5;
     data.height = 1;
-    data.data = new Uint8Array([0b10100000]);
+    data.data = new Uint8Array([1, 0, 1, 0, 0]);
     testDecode(data, '5x1.bmp');
   });
 
   it('decode a 6x4 image', () => {
     data.width = 6;
     data.height = 4;
-    data.data = new Uint8Array([0b11111100, 0b00001111, 0b11000000]);
+    data.data = new Uint8Array([
+      1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0,
+    ]);
     testDecode(data, '6x4.bmp');
   });
 
   it('decode a 62x4', () => {
-    data.width = 62;
-    data.height = 4;
-    data.data = new Uint8Array([
-      0b11111111, 0b11111111, 0b11111111, 0b00000000, 0b00000000, 0b11111111,
-      0b11111111, 0b11111100, 0b00000000, 0b00000000, 0b00000011, 0b11111111,
-      0b11111100, 0b00000000, 0b00000000, 0b00001111, 0b11111111, 0b11111111,
-      0b11110000, 0b00000000, 0b000011111, 0b11111111, 0b11111111, 0b11000000,
-      0b00000000, 0b00000000, 0b00111111, 0b11111111, 0b11000000, 0b00000000,
-      0b00000000,
-    ]);
-    testDecode(data, '62x4.bmp');
+    const result = decode(fs.readFileSync('src/__test__/files/62x4.bmp'));
+    expect(result).toMatchSnapshot();
   });
 
   it('decode a 10x2 image', () => {
@@ -85,7 +78,9 @@ describe('decode image with bitDepth of 1', () => {
     // 1 0 1 0 1 0 0 1 1 1
     data.width = 10;
     data.height = 2;
-    data.data = new Uint8Array([0b11100101, 0b01101010, 0b01110000]);
+    data.data = new Uint8Array([
+      1, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 1, 1,
+    ]);
     testDecode(data, '10x2.bmp');
   });
 
@@ -93,8 +88,9 @@ describe('decode image with bitDepth of 1', () => {
     data.width = 32;
     data.height = 2;
     data.data = new Uint8Array([
-      0b00000000, 0b00000000, 0b11111111, 0b11111111, 0b11111111, 0b11111111,
-      0b00000000, 0b00000000,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     ]);
     testDecode(data, '32x2.bmp');
   });
@@ -103,21 +99,16 @@ describe('decode image with bitDepth of 1', () => {
     data.width = 42;
     data.height = 2;
     data.data = new Uint8Array([
-      0b00000000, 0b00000000, 0b11111111, 0b11111111, 0b11111111, 0b11000000,
-      0b00000000, 0b00111111, 0b11111111, 0b11111111, 0b11110000,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      1, 1, 1, 1, 1, 1, 1, 1, 1,
     ]);
     testDecode(data, '42x2.bmp');
   });
+
   it('decode image where skipBit can equal relOffset on the last column', () => {
-    data.width = 60;
-    data.height = 4;
-    data.data = new Uint8Array([
-      0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000,
-      0b00000000, 0b00000000, 0b11111111, 0b11111111, 0b11111111, 0b11111111,
-      0b11111111, 0b11111111, 0b11111111, 0b00000000, 0b00000000, 0b00000000,
-      0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b11111111,
-      0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111,
-    ]);
-    testDecode(data, '60x4.bmp');
+    const result = decode(fs.readFileSync('src/__test__/files/60x4.bmp'));
+    expect(result).toMatchSnapshot();
   });
 });

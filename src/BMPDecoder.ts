@@ -28,43 +28,24 @@ export default class BMPDecoder {
 
   decode(): ImageCodec {
     this.bufferData.seek(this.pixelDataOffset);
-    this.bufferData.setLittleEndian();
+    const data = new Uint8Array(this.height * this.width * this.bitDepth);
+    this.bufferData.setBigEndian();
 
     let currentNumber = 0;
-    let currentWordIndex = 0;
-    let currentWord = 0;
-    let currentDataIndex = 0;
-    const rowSize = Math.floor((this.width + 31) / 32) * 4;
 
-    const data = new Uint8Array(Math.ceil((this.height * this.width) / 8));
-    this.bufferData.seek(this.pixelDataOffset);
-    this.bufferData.mark();
-    for (let row = this.height - 1; row >= 0; row--) {
-      this.bufferData.skip(row * rowSize);
+    for (let row = 0; row < this.height; row++) {
       for (let col = 0; col < this.width; col++) {
-        const byte = Math.ceil((col + 1) / 8);
         const bitIndex = col % 32;
-        if (col % 32 === 0) {
+        if (bitIndex === 0) {
           currentNumber = this.bufferData.readUint32();
         }
-        const currentBit =
-          currentNumber & (1 << (byte * 8 - (bitIndex % 8) - 1));
 
-        if (currentWordIndex % 8 === 0 && currentWordIndex !== 0) {
-          data[currentDataIndex++] = currentWord;
-          currentWordIndex = 0;
-          currentWord = 0;
+        if (currentNumber & (1 << (31 - bitIndex))) {
+          data[(this.height - row - 1) * this.width + col] = 1;
         }
-
-        const mask = currentBit
-          ? 1 << (8 - (currentWordIndex % 8) - 1)
-          : 0 << (8 - (currentWordIndex % 8) - 1);
-        currentWord |= mask;
-        currentWordIndex++;
       }
-      this.bufferData.reset();
     }
-    data[currentDataIndex] = currentWord;
+
     const channels = Math.ceil(this.bitDepth / 8);
     const components = channels % 2 === 0 ? channels - 1 : channels;
     return {
