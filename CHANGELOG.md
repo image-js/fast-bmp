@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.0](https://github.com/image-js/fast-bmp/compare/v2.0.1...v2.1.0) (2025-03-18)
+
+
+### Features
+
+* add 1-bit image decoder ([0607b6b](https://github.com/image-js/fast-bmp/commit/0607b6bf9eef96f5bed6a6e1b7c5e14798aadf40))
+
 ## [2.0.1](https://github.com/image-js/fast-bmp/compare/v2.0.0...v2.0.1) (2022-09-29)
 
 
