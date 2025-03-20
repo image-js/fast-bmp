@@ -9,7 +9,7 @@ import type { ImageCodec } from '../BMPEncoder';
  * @param data - Data for encoding.
  * @param filename - Filename for a file to write.
  */
-export function testEncode(data: ImageCodec, filename: string) {
+export function testHeaderDataEncode(data: ImageCodec, filename: string) {
   const buffer = encode(data);
   if (process.env.FAST_BMP_WRITE_DATA_FILES) {
     fs.writeFileSync(path.join(__dirname, 'files', filename), buffer);

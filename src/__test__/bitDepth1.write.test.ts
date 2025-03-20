@@ -1,6 +1,6 @@
 import { encode, decode } from '..';
 
-import { testEncode } from './testEncode';
+import { testHeaderDataEncode } from './testHeaderDataEncode';
 
 const data = {
   width: 0,
@@ -24,7 +24,7 @@ describe('encode image with bitDepth of 1', () => {
       0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0,
       0,
     ]);
-    testEncode(data, '5x5.bmp');
+    testHeaderDataEncode(data, '5x5.bmp');
     expect(encode(data)).toMatchSnapshot();
   });
 
@@ -37,7 +37,7 @@ describe('encode image with bitDepth of 1', () => {
     data.width = 1;
     data.height = 5;
     data.data = new Uint8Array([0, 1, 0, 1, 1]);
-    testEncode(data, '1x5.bmp');
+    testHeaderDataEncode(data, '1x5.bmp');
     expect(encode(data)).toMatchSnapshot();
   });
 
@@ -46,7 +46,7 @@ describe('encode image with bitDepth of 1', () => {
     data.width = 5;
     data.height = 1;
     data.data = new Uint8Array([1, 0, 1, 0, 0]);
-    testEncode(data, '5x1.bmp');
+    testHeaderDataEncode(data, '5x1.bmp');
     expect(encode(data).slice(146)).toMatchSnapshot();
   });
 
@@ -56,7 +56,7 @@ describe('encode image with bitDepth of 1', () => {
     data.data = new Uint8Array([
       1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0,
     ]);
-    testEncode(data, '6x4.bmp');
+    testHeaderDataEncode(data, '6x4.bmp');
     expect(encode(data).slice(146)).toMatchSnapshot();
   });
 
@@ -75,7 +75,7 @@ describe('encode image with bitDepth of 1', () => {
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
       1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     ]);
-    testEncode(data, '62x4.bmp');
+    testHeaderDataEncode(data, '62x4.bmp');
     expect(encode(data).slice(146)).toMatchSnapshot();
   });
 
@@ -87,7 +87,7 @@ describe('encode image with bitDepth of 1', () => {
     data.data = new Uint8Array([
       1, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0,
     ]);
-    testEncode(data, '10x2.bmp');
+    testHeaderDataEncode(data, '10x2.bmp');
     expect(encode(data).slice(146)).toMatchSnapshot();
   });
 
@@ -99,7 +99,7 @@ describe('encode image with bitDepth of 1', () => {
       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     ]);
-    testEncode(data, '32x2.bmp');
+    testHeaderDataEncode(data, '32x2.bmp');
     expect(encode(data).slice(146)).toMatchSnapshot();
   });
 
@@ -112,7 +112,7 @@ describe('encode image with bitDepth of 1', () => {
       0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
     ]);
-    testEncode(data, '42x2.bmp');
+    testHeaderDataEncode(data, '42x2.bmp');
     expect(encode(data).slice(146)).toMatchSnapshot();
   });
   it('encode image where skipBit can equal relOffset on the last column', () => {
@@ -130,7 +130,7 @@ describe('encode image with bitDepth of 1', () => {
       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
     ]);
-    testEncode(data, '60x4.bmp');
+    testHeaderDataEncode(data, '60x4.bmp');
     expect(encode(data).slice(146)).toMatchSnapshot();
   });
   it('encode image after decode must give the same image', () => {
