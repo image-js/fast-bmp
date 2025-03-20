@@ -34,12 +34,13 @@ for (let i = 0; i <= 8; i++) {
   tableLeft.push(0b11111111 << i);
 }
 
-export default class BMPEncoder extends IOBuffer {
+export default class BMPEncoder {
   width: number;
   height: number;
   bitDepth: number;
   channels: number;
   components: number;
+  data: Uint8Array;
   encoded: IOBuffer = new IOBuffer();
   constructor(data: ImageCodec) {
     if (data.bitDepth !== 1) {
@@ -48,9 +49,7 @@ export default class BMPEncoder extends IOBuffer {
     if (!data.height || !data.width) {
       throw new Error('ImageData width and height are required');
     }
-
-    super(data.data);
-
+    this.data = data.data as Uint8Array;
     this.width = data.width;
     this.height = data.height;
     this.bitDepth = data.bitDepth;
@@ -61,71 +60,37 @@ export default class BMPEncoder extends IOBuffer {
   encode() {
     this.encoded = new IOBuffer();
     this.encoded.skip(14);
+
     this.writeBitmapV5Header();
     this.writeColorTable();
     const offset = this.encoded.offset;
+
     this.writePixelArray();
+
     const imageSize = this.encoded.getWrittenByteLength();
+
     this.encoded.rewind();
     this.writeBitmapFileHeader(offset, imageSize);
+
     return this.encoded.toArray();
   }
 
   writePixelArray() {
-    const io = this.encoded;
-    const rowSize = Math.floor((this.bitDepth * this.width + 31) / 32) * 4;
-    const dataRowSize = Math.ceil((this.bitDepth * this.width) / 8);
-    const skipSize = rowSize - dataRowSize;
-    const bitOverflow = (this.bitDepth * this.width) % 8;
-    const bitSkip = bitOverflow === 0 ? 0 : 8 - bitOverflow;
-    const totalBytes = rowSize * this.height;
-    let byteA, byteB;
-    let offset = 0; // Current off set in the ioData
-    let relOffset = 0;
-    let iOffset = 8;
-    io.mark();
-    byteB = this.readUint8();
-    for (let i = this.height - 1; i >= 0; i--) {
-      const lastRow = i === 0;
-      io.reset();
-      io.skip(i * rowSize);
-      for (let j = 0; j < dataRowSize; j++) {
-        const lastCol = j === dataRowSize - 1;
-        if (relOffset <= bitSkip && lastCol) {
-          // no need to read new data
+    this.encoded.setBigEndian();
+    let byte = 0;
 
-          io.writeByte(byteB << relOffset);
-          if ((bitSkip === 0 || bitSkip === relOffset) && !lastRow) {
-            byteA = byteB;
-            byteB = this.readByte();
-          }
-        } else if (relOffset === 0) {
-          byteA = byteB;
-          byteB = this.readUint8();
-
-          io.writeByte(byteA);
-        } else {
-          byteA = byteB;
-          byteB = this.readUint8();
-          io.writeByte(
-            ((byteA << relOffset) & tableLeft[relOffset]) | (byteB >> iOffset)
-          );
+    for (let row = this.height - 1; row >= 0; row--) {
+      for (let col = 0; col < this.width; col++) {
+        if (col % 32 === 0 && row * this.width !== row * this.width + col) {
+          this.encoded.writeUint32(byte);
+          byte = 0;
         }
-
-        if (lastCol) {
-          offset += bitOverflow || 0;
-          io.skip(skipSize);
-          relOffset = offset % 8;
-          iOffset = 8 - relOffset;
-        }
+        byte |= this.data[row * this.width + col] << (31 - (col % 32));
       }
+      this.encoded.writeUint32(byte);
+      byte = 0;
     }
-    if (rowSize > dataRowSize) {
-      // make sure last written byte is correct
-      io.reset();
-      io.skip(totalBytes - 1);
-      io.writeUint8(0);
-    }
+    this.encoded.setLittleEndian();
   }
 
   writeColorTable() {
