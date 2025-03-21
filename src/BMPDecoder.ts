@@ -8,8 +8,8 @@ export default class BMPDecoder {
   width: number;
   height: number;
   bitDepth: number;
-  xPixelsPerM: number;
-  yPixelsPerM: number;
+  xPixelsPerMeter: number;
+  yPixelsPerMeter: number;
   constructor(bufferData: Buffer) {
     this.bufferData = new IOBuffer(bufferData);
     const formatCheck = this.bufferData.readBytes(2);
@@ -22,8 +22,8 @@ export default class BMPDecoder {
     this.width = this.bufferData.skip(4).readUint32();
     this.height = this.bufferData.readUint32();
     this.bitDepth = this.bufferData.seek(28).readUint16();
-    this.xPixelsPerM = this.bufferData.seek(38).readInt32();
-    this.yPixelsPerM = this.bufferData.readInt32();
+    this.xPixelsPerMeter = this.bufferData.seek(38).readInt32();
+    this.yPixelsPerMeter = this.bufferData.readInt32();
     if (this.bitDepth !== 1) {
       throw new Error('only bitDepth of 1 is supported');
     }
@@ -58,8 +58,8 @@ export default class BMPDecoder {
       channels,
       components,
       data,
-      yPixelsPerMeter: this.yPixelsPerM,
-      xPixelsPerMeter: this.xPixelsPerM,
+      yPixelsPerMeter: this.yPixelsPerMeter,
+      xPixelsPerMeter: this.xPixelsPerMeter,
     };
   }
 }

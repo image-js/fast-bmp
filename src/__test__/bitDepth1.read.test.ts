@@ -3,6 +3,7 @@ import path from 'node:path';
 
 import { decode, encode } from '..';
 import type { ImageCodec } from '../BMPEncoder';
+import { BITMAPV5HEADER } from '../constants';
 
 /**
  * Helper function to check decoding results.
@@ -22,8 +23,8 @@ const data = {
   bitDepth: 1,
   components: 1,
   channels: 1,
-  xPixelsPerMeter: 0,
-  yPixelsPerMeter: 0,
+  xPixelsPerMeter: BITMAPV5HEADER.DEFAULT_PIXELS_PER_METER,
+  yPixelsPerMeter: BITMAPV5HEADER.DEFAULT_PIXELS_PER_METER,
 };
 
 describe('decode image with bitDepth of 1', () => {
@@ -35,8 +36,6 @@ describe('decode image with bitDepth of 1', () => {
     // 0 0 0 0 0
     data.width = 5;
     data.height = 5;
-    data.xPixelsPerMeter = 2835;
-    data.yPixelsPerMeter = 2835;
 
     data.data = new Uint8Array([
       0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0,
@@ -52,8 +51,7 @@ describe('decode image with bitDepth of 1', () => {
     // 1
     data.width = 1;
     data.height = 5;
-    data.xPixelsPerMeter = 2835;
-    data.yPixelsPerMeter = 2835;
+
     data.data = new Uint8Array([0, 1, 0, 1, 1]);
     testDecode(data, '1x5.bmp');
   });
@@ -78,8 +76,22 @@ describe('decode image with bitDepth of 1', () => {
   });
 
   it('decode a 62x4', () => {
-    const result = decode(fs.readFileSync('src/__test__/files/62x4.bmp'));
-    testDecode(result, '62x4.bmp');
+    data.width = 62;
+    data.height = 4;
+
+    data.data = new Uint8Array([
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    ]);
+    testDecode(data, '62x4.bmp');
   });
 
   it('decode a 10x2 image', () => {
@@ -120,8 +132,23 @@ describe('decode image with bitDepth of 1', () => {
   });
 
   it('decode image where skipBit can equal relOffset on the last column', () => {
-    const result = decode(fs.readFileSync('src/__test__/files/60x4.bmp'));
-    testDecode(result, '60x4.bmp');
+    data.width = 60;
+    data.height = 4;
+
+    data.data = new Uint8Array([
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    ]);
+
+    testDecode(data, '60x4.bmp');
   });
 
   it('decode image must return the same data as encoded version', () => {

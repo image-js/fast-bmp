@@ -30,11 +30,11 @@ export interface ImageCodec {
   /**
    * Horizontal number of pixels per meter.
    */
-  xPixelsPerMeter: number;
+  xPixelsPerMeter?: number;
   /**
    * Vertical number of pixels per meter.
    */
-  yPixelsPerMeter: number;
+  yPixelsPerMeter?: number;
 }
 
 export default class BMPEncoder {
@@ -44,8 +44,8 @@ export default class BMPEncoder {
   channels: number;
   components: number;
   data: Uint8Array;
-  xPixelsPerM: number;
-  yPixelsPerM: number;
+  xPixelsPerMeter: number;
+  yPixelsPerMeter: number;
   encoded: IOBuffer = new IOBuffer();
   constructor(data: ImageCodec) {
     if (data.bitDepth !== 1) {
@@ -60,8 +60,10 @@ export default class BMPEncoder {
     this.bitDepth = data.bitDepth;
     this.channels = data.channels;
     this.components = data.components;
-    this.xPixelsPerM = data.xPixelsPerMeter;
-    this.yPixelsPerM = data.yPixelsPerMeter;
+    this.xPixelsPerMeter =
+      data.xPixelsPerMeter ?? BITMAPV5HEADER.DEFAULT_PIXELS_PER_METER;
+    this.yPixelsPerMeter =
+      data.yPixelsPerMeter ?? BITMAPV5HEADER.DEFAULT_PIXELS_PER_METER;
   }
 
   encode() {
@@ -128,8 +130,8 @@ export default class BMPEncoder {
       .writeUint16(this.bitDepth) // bV5BitCount
       .writeUint32(BITMAPV5HEADER.Compression.BI_RGB) // bV5Compression - No compression
       .writeUint32(totalBytes) // bv5SizeImage - size of pixel buffer (can be 0 if uncompressed)
-      .writeInt32(this.xPixelsPerM) // bV5XPelsPerMeter - resolution
-      .writeInt32(this.yPixelsPerM) // bV5YPelsPerMeter - resolution
+      .writeInt32(this.xPixelsPerMeter) // bV5XPelsPerMeter - resolution
+      .writeInt32(this.yPixelsPerMeter) // bV5YPelsPerMeter - resolution
       .writeUint32(2 ** this.bitDepth)
       .writeUint32(2 ** this.bitDepth)
       .writeUint32(0x00ff0000) // bV5BlueMask

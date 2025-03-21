@@ -1,4 +1,5 @@
 import { encode, decode } from '..';
+import { BITMAPV5HEADER } from '../constants';
 
 import { testEncode } from './testEncode';
 
@@ -9,7 +10,7 @@ const data = {
   bitDepth: 1,
   components: 1,
   channels: 1,
-  xPixelsPerMeter: 0,
+  xPixelsPerMeter: BITMAPV5HEADER.DEFAULT_PIXELS_PER_METER,
   yPixelsPerMeter: 0,
 };
 
@@ -154,5 +155,26 @@ describe('encode image with bitDepth of 1', () => {
     const decodedImage = decode(Buffer.from(encodedImage));
 
     expect(decodedImage).toEqual(data);
+  });
+
+  it('encode a 5x5 image without optional parameters', () => {
+    // 0 0 0 0 0
+    // 0 1 1 1 0
+    // 0 1 0 1 0
+    // 0 1 1 1 0
+    // 0 0 0 0 0
+    const dataWithoutOptions = {
+      width: 5,
+      height: 5,
+      data: new Uint8Array([
+        0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0,
+        0,
+      ]),
+      bitDepth: 1,
+      components: 1,
+      channels: 1,
+    };
+
+    testEncode(dataWithoutOptions, '5x5.bmp');
   });
 });
