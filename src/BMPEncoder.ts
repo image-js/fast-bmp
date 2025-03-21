@@ -135,7 +135,7 @@ export default class BMPEncoder {
       .writeUint32(0x00ff0000) // bV5BlueMask
       .writeUint32(0x0000ff00) // bV5GreenMask
       .writeUint32(0x000000ff) // bV5RedMask
-      .writeUint32(0x00000000) // bV5AlphaMask
+      .writeUint32(0x00000000) // bv5ReservedData
       .writeUint32(BITMAPV5HEADER.LogicalColorSpace.LCS_sRGB)
       .skip(36) // bV5Endpoints
       .skip(12) // bV5GammaRed, Green, Blue
