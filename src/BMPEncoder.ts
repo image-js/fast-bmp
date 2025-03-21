@@ -27,11 +27,14 @@ export interface ImageCodec {
    * Image number of channels excluding alpha.
    */
   components: number;
-}
-
-const tableLeft: number[] = [];
-for (let i = 0; i <= 8; i++) {
-  tableLeft.push(0b11111111 << i);
+  /**
+   * Horizontal number of pixels per meter.
+   */
+  xPixelsPerMeter: number;
+  /**
+   * Vertical number of pixels per meter.
+   */
+  yPixelsPerMeter: number;
 }
 
 export default class BMPEncoder {
@@ -41,6 +44,8 @@ export default class BMPEncoder {
   channels: number;
   components: number;
   data: Uint8Array;
+  xPixelsPerM: number;
+  yPixelsPerM: number;
   encoded: IOBuffer = new IOBuffer();
   constructor(data: ImageCodec) {
     if (data.bitDepth !== 1) {
@@ -55,6 +60,8 @@ export default class BMPEncoder {
     this.bitDepth = data.bitDepth;
     this.channels = data.channels;
     this.components = data.components;
+    this.xPixelsPerM = data.xPixelsPerMeter;
+    this.yPixelsPerM = data.yPixelsPerMeter;
   }
 
   encode() {
@@ -121,18 +128,18 @@ export default class BMPEncoder {
       .writeUint16(this.bitDepth) // bV5BitCount
       .writeUint32(BITMAPV5HEADER.Compression.BI_RGB) // bV5Compression - No compression
       .writeUint32(totalBytes) // bv5SizeImage - size of pixel buffer (can be 0 if uncompressed)
-      .writeInt32(0) // bV5XPelsPerMeter - resolution
-      .writeInt32(0) // bV5YPelsPerMeter - resolution
+      .writeInt32(this.xPixelsPerM) // bV5XPelsPerMeter - resolution
+      .writeInt32(this.yPixelsPerM) // bV5YPelsPerMeter - resolution
       .writeUint32(2 ** this.bitDepth)
       .writeUint32(2 ** this.bitDepth)
-      .writeUint32(0xff000000) // bV5RedMask
-      .writeUint32(0x00ff0000) // bV5GreenMask
-      .writeUint32(0x0000ff00) // bV5BlueMask
-      .writeUint32(0x000000ff) // bV5AlphaMask
+      .writeUint32(0x00ff0000) // bV5BlueMask
+      .writeUint32(0x0000ff00) // bV5GreenMask
+      .writeUint32(0x000000ff) // bV5RedMask
+      .writeUint32(0x00000000) // bV5AlphaMask
       .writeUint32(BITMAPV5HEADER.LogicalColorSpace.LCS_sRGB)
       .skip(36) // bV5Endpoints
       .skip(12) // bV5GammaRed, Green, Blue
-      .writeUint32(BITMAPV5HEADER.GamutMappingIntent.LCS_GM_IMAGES)
+      .writeUint32(BITMAPV5HEADER.GamutMappingIntent.LCS_GM_GRAPHICS)
       .skip(12); // ProfileData, ProfileSize, Reserved
   }
 }

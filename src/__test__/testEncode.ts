@@ -9,14 +9,13 @@ import type { ImageCodec } from '../BMPEncoder';
  * @param data - Data for encoding.
  * @param filename - Filename for a file to write.
  */
-export function testHeaderDataEncode(data: ImageCodec, filename: string) {
+export function testEncode(data: ImageCodec, filename: string) {
   const buffer = encode(data);
   if (process.env.FAST_BMP_WRITE_DATA_FILES) {
     fs.writeFileSync(path.join(__dirname, 'files', filename), buffer);
   } else {
     const fileData = fs.readFileSync(path.join(__dirname, 'files', filename));
     const fileDataUint8 = Uint8Array.from(fileData);
-
-    expect(buffer.slice(0, 146)).toStrictEqual(fileDataUint8.slice(0, 146));
+    expect(buffer).toStrictEqual(fileDataUint8);
   }
 }
