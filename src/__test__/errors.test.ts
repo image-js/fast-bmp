@@ -11,6 +11,8 @@ describe('errors', () => {
         components: 1,
         bitDepth: 1,
         channels: 1,
+        xPixelsPerMeter: 0,
+        yPixelsPerMeter: 0,
         data: new Uint8Array(2),
       });
     }).toThrow(/width and height are required/);
@@ -22,6 +24,8 @@ describe('errors', () => {
         components: 1,
         bitDepth: 1,
         channels: 1,
+        xPixelsPerMeter: 0,
+        yPixelsPerMeter: 0,
         data: new Uint8Array(2),
       });
     }).toThrow(/width and height are required/);
@@ -35,6 +39,8 @@ describe('errors', () => {
         components: 1,
         channels: 1,
         bitDepth: 8,
+        xPixelsPerMeter: 0,
+        yPixelsPerMeter: 0,
         data: new Uint8Array(10),
       });
     }).toThrow(/only bitDepth of 1 is supported/i);

@@ -27,19 +27,25 @@ export interface ImageCodec {
    * Image number of channels excluding alpha.
    */
   components: number;
+  /**
+   * Horizontal number of pixels per meter.
+   */
+  xPixelsPerMeter?: number;
+  /**
+   * Vertical number of pixels per meter.
+   */
+  yPixelsPerMeter?: number;
 }
 
-const tableLeft: number[] = [];
-for (let i = 0; i <= 8; i++) {
-  tableLeft.push(0b11111111 << i);
-}
-
-export default class BMPEncoder extends IOBuffer {
+export default class BMPEncoder {
   width: number;
   height: number;
   bitDepth: number;
   channels: number;
   components: number;
+  data: Uint8Array;
+  xPixelsPerMeter: number;
+  yPixelsPerMeter: number;
   encoded: IOBuffer = new IOBuffer();
   constructor(data: ImageCodec) {
     if (data.bitDepth !== 1) {
@@ -48,84 +54,52 @@ export default class BMPEncoder extends IOBuffer {
     if (!data.height || !data.width) {
       throw new Error('ImageData width and height are required');
     }
-
-    super(data.data);
-
+    this.data = data.data as Uint8Array;
     this.width = data.width;
     this.height = data.height;
     this.bitDepth = data.bitDepth;
     this.channels = data.channels;
     this.components = data.components;
+    this.xPixelsPerMeter =
+      data.xPixelsPerMeter ?? BITMAPV5HEADER.DEFAULT_PIXELS_PER_METER;
+    this.yPixelsPerMeter =
+      data.yPixelsPerMeter ?? BITMAPV5HEADER.DEFAULT_PIXELS_PER_METER;
   }
 
   encode() {
     this.encoded = new IOBuffer();
     this.encoded.skip(14);
+
     this.writeBitmapV5Header();
     this.writeColorTable();
     const offset = this.encoded.offset;
+
     this.writePixelArray();
+
     const imageSize = this.encoded.getWrittenByteLength();
+
     this.encoded.rewind();
     this.writeBitmapFileHeader(offset, imageSize);
+
     return this.encoded.toArray();
   }
 
   writePixelArray() {
-    const io = this.encoded;
-    const rowSize = Math.floor((this.bitDepth * this.width + 31) / 32) * 4;
-    const dataRowSize = Math.ceil((this.bitDepth * this.width) / 8);
-    const skipSize = rowSize - dataRowSize;
-    const bitOverflow = (this.bitDepth * this.width) % 8;
-    const bitSkip = bitOverflow === 0 ? 0 : 8 - bitOverflow;
-    const totalBytes = rowSize * this.height;
-    let byteA, byteB;
-    let offset = 0; // Current off set in the ioData
-    let relOffset = 0;
-    let iOffset = 8;
-    io.mark();
-    byteB = this.readUint8();
-    for (let i = this.height - 1; i >= 0; i--) {
-      const lastRow = i === 0;
-      io.reset();
-      io.skip(i * rowSize);
-      for (let j = 0; j < dataRowSize; j++) {
-        const lastCol = j === dataRowSize - 1;
-        if (relOffset <= bitSkip && lastCol) {
-          // no need to read new data
+    this.encoded.setBigEndian();
+    let byte = 0;
 
-          io.writeByte(byteB << relOffset);
-          if ((bitSkip === 0 || bitSkip === relOffset) && !lastRow) {
-            byteA = byteB;
-            byteB = this.readByte();
-          }
-        } else if (relOffset === 0) {
-          byteA = byteB;
-          byteB = this.readUint8();
-
-          io.writeByte(byteA);
-        } else {
-          byteA = byteB;
-          byteB = this.readUint8();
-          io.writeByte(
-            ((byteA << relOffset) & tableLeft[relOffset]) | (byteB >> iOffset)
-          );
+    for (let row = this.height - 1; row >= 0; row--) {
+      for (let col = 0; col < this.width; col++) {
+        if (col % 32 === 0 && row * this.width !== row * this.width + col) {
+          this.encoded.writeUint32(byte);
+          byte = 0;
         }
-
-        if (lastCol) {
-          offset += bitOverflow || 0;
-          io.skip(skipSize);
-          relOffset = offset % 8;
-          iOffset = 8 - relOffset;
-        }
+        byte |= this.data[row * this.width + col] << (31 - (col % 32));
       }
+      this.encoded.writeUint32(byte);
+      byte = 0;
     }
-    if (rowSize > dataRowSize) {
-      // make sure last written byte is correct
-      io.reset();
-      io.skip(totalBytes - 1);
-      io.writeUint8(0);
-    }
+    this.encoded.setLittleEndian();
   }
 
   writeColorTable() {
@@ -156,18 +130,18 @@ export default class BMPEncoder extends IOBuffer {
       .writeUint16(this.bitDepth) // bV5BitCount
       .writeUint32(BITMAPV5HEADER.Compression.BI_RGB) // bV5Compression - No compression
       .writeUint32(totalBytes) // bv5SizeImage - size of pixel buffer (can be 0 if uncompressed)
-      .writeInt32(0) // bV5XPelsPerMeter - resolution
-      .writeInt32(0) // bV5YPelsPerMeter - resolution
+      .writeInt32(this.xPixelsPerMeter) // bV5XPelsPerMeter - resolution
+      .writeInt32(this.yPixelsPerMeter) // bV5YPelsPerMeter - resolution
       .writeUint32(2 ** this.bitDepth)
       .writeUint32(2 ** this.bitDepth)
-      .writeUint32(0xff000000) // bV5RedMask
-      .writeUint32(0x00ff0000) // bV5GreenMask
-      .writeUint32(0x0000ff00) // bV5BlueMask
-      .writeUint32(0x000000ff) // bV5AlphaMask
+      .writeUint32(0x00ff0000) // bV5BlueMask
+      .writeUint32(0x0000ff00) // bV5GreenMask
+      .writeUint32(0x000000ff) // bV5RedMask
+      .writeUint32(0x00000000) // bv5ReservedData
       .writeUint32(BITMAPV5HEADER.LogicalColorSpace.LCS_sRGB)
       .skip(36) // bV5Endpoints
       .skip(12) // bV5GammaRed, Green, Blue
-      .writeUint32(BITMAPV5HEADER.GamutMappingIntent.LCS_GM_IMAGES)
+      .writeUint32(BITMAPV5HEADER.GamutMappingIntent.LCS_GM_GRAPHICS)
       .skip(12); // ProfileData, ProfileSize, Reserved
   }
 }
