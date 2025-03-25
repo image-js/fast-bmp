@@ -24,6 +24,6 @@ export const BITMAPV5HEADER = {
     LCS_GM_GRAPHICS: 0x00000002,
     LCS_GM_IMAGES: 0x00000004,
   },
-
+  // legacy resolution (72 dpi)
   DEFAULT_PIXELS_PER_METER: 2835,
 };
