@@ -48,9 +48,6 @@ export default class BMPEncoder {
   yPixelsPerMeter: number;
   encoded: IOBuffer = new IOBuffer();
   constructor(data: ImageCodec) {
-    if (data.bitDepth !== 1) {
-      throw new Error('Only bitDepth of 1 is supported');
-    }
     if (!data.height || !data.width) {
       throw new Error('ImageData width and height are required');
     }
@@ -71,7 +68,12 @@ export default class BMPEncoder {
     this.encoded.skip(14);
 
     this.writeBitmapV5Header();
-    this.writeColorTable();
+    if (this.bitDepth <= 8) {
+      this.writeColorTable();
+    } else {
+      this.encoded.skip(1024);
+    }
+
     const offset = this.encoded.offset;
 
     this.writePixelArray();
@@ -86,27 +88,57 @@ export default class BMPEncoder {
 
   writePixelArray() {
     this.encoded.setBigEndian();
-    let byte = 0;
 
-    for (let row = this.height - 1; row >= 0; row--) {
-      for (let col = 0; col < this.width; col++) {
-        if (col % 32 === 0 && row * this.width !== row * this.width + col) {
-          this.encoded.writeUint32(byte);
-          byte = 0;
+    if (this.bitDepth === 1) {
+      let byte = 0;
+      for (let row = this.height - 1; row >= 0; row--) {
+        for (let col = 0; col < this.width; col++) {
+          if (col % 32 === 0 && row * this.width !== row * this.width + col) {
+            this.encoded.writeUint32(byte);
+            byte = 0;
+          }
+          byte |= this.data[row * this.width + col] << (31 - (col % 32));
         }
-        byte |= this.data[row * this.width + col] << (31 - (col % 32));
+        this.encoded.writeUint32(byte);
+        byte = 0;
       }
-      this.encoded.writeUint32(byte);
-      byte = 0;
+    } else {
+      for (let row = 0; row < this.height; row++) {
+        for (let col = 0; col < this.width; col++) {
+          for (let channel = this.channels - 1; channel >= 0; channel--) {
+            this.encoded.writeByte(
+              this.data[
+                (this.width * (this.height - row - 1) + col) * this.channels +
+                  channel
+              ]
+            );
+          }
+        }
+        const padding =
+          (this.width * this.channels) % 4 === 0
+            ? 0
+            : 4 - ((this.width * this.channels) % 4);
+        for (let i = 0; i < padding; i++) {
+          this.encoded.writeByte(0);
+        }
+      }
     }
     this.encoded.setLittleEndian();
   }
 
   writeColorTable() {
-    // We only handle 1-bit images
-    this.encoded
-      .writeUint32(0x00000000) // black
-      .writeUint32(0x00ffffff); // white
+    if (this.bitDepth === 1) {
+      this.encoded
+        .writeUint32(0x00000000) // black
+        .writeUint32(0x00ffffff); // white
+    } else {
+      //Grayscale 8 bit
+      for (let i = 0; i < 256; i++) {
+        this.encoded.writeUint32(
+          0x00000000 | (i << (4 * 4)) | (i << (2 * 4)) | i
+        );
+      }
+    }
   }
 
   writeBitmapFileHeader(imageOffset: number, fileSize: number) {
