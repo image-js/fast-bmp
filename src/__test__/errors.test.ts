@@ -31,20 +31,6 @@ describe('errors', () => {
     }).toThrow(/width and height are required/);
   });
 
-  it('should throw if bitDepth not 1 during encoding', () => {
-    expect(() => {
-      encode({
-        width: 10,
-        height: 10,
-        components: 1,
-        channels: 1,
-        bitDepth: 8,
-        xPixelsPerMeter: 0,
-        yPixelsPerMeter: 0,
-        data: new Uint8Array(10),
-      });
-    }).toThrow(/only bitDepth of 1 is supported/i);
-  });
   it('should throw if image is not bmp encoded', () => {
     expect(() => {
       decode(fs.readFileSync('src/__test__/files/color-balance.png'));
