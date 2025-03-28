@@ -31,7 +31,7 @@ export default class BMPDecoder {
     this.bufferData.setBigEndian();
     const channels = Math.ceil(this.bitDepth / 8);
     const components = channels % 2 === 0 ? channels - 1 : channels;
-    const data: Uint8Array = this.decodePixelData(channels);
+    const data: Uint8Array = this.decodePixelData(channels, components);
     return {
       width: this.width,
       height: this.height,
@@ -44,38 +44,81 @@ export default class BMPDecoder {
     };
   }
 
-  decodePixelData(channels: number) {
+  decodePixelData(channels: number, components: number): Uint8Array {
     const data = new Uint8Array(this.height * this.width * channels);
-    if (this.bitDepth === 1) {
-      let currentNumber = 0;
-      for (let row = 0; row < this.height; row++) {
-        for (let col = 0; col < this.width; col++) {
-          const bitIndex = col % 32;
-          if (bitIndex === 0) {
-            currentNumber = this.bufferData.readUint32();
-          }
-          if (currentNumber & (1 << (31 - bitIndex))) {
-            data[(this.height - row - 1) * this.width + col] = 1;
-          }
-        }
-      }
-    } else {
-      const padding =
-        (this.width * channels) % 4 === 0
-          ? 0
-          : 4 - ((this.width * channels) % 4);
 
-      for (let row = 0; row < this.height; row++) {
-        for (let col = 0; col < this.width; col++) {
-          for (let channel = channels - 1; channel >= 0; channel--) {
-            data[
-              ((this.height - row - 1) * this.width + col) * channels + channel
-            ] = this.bufferData.readByte();
-          }
+    if (this.bitDepth === 1) {
+      this.decodeBitDepth1Pixels(data);
+    } else if (channels === components) {
+      this.decodeStandardPixels(data, channels);
+    } else {
+      this.decodePixelsWithAlpha(data, channels, components);
+    }
+
+    return data;
+  }
+
+  private decodeBitDepth1Pixels(data: Uint8Array) {
+    let currentNumber = 0;
+    for (let row = 0; row < this.height; row++) {
+      for (let col = 0; col < this.width; col++) {
+        const bitIndex = col % 32;
+        if (bitIndex === 0) {
+          currentNumber = this.bufferData.readUint32();
         }
-        this.bufferData.skip(padding);
+        if (currentNumber & (1 << (31 - bitIndex))) {
+          data[(this.height - row - 1) * this.width + col] = 1;
+        }
       }
     }
-    return data;
+  }
+
+  private decodeStandardPixels(data: Uint8Array, channels: number) {
+    const padding = this.calculatePadding(channels);
+
+    for (let row = 0; row < this.height; row++) {
+      const rowOffset = (this.height - row - 1) * this.width;
+
+      for (let col = 0; col < this.width; col++) {
+        for (let channel = channels - 1; channel >= 0; channel--) {
+          data[(rowOffset + col) * channels + channel] =
+            this.bufferData.readByte();
+        }
+      }
+
+      this.bufferData.skip(padding);
+    }
+  }
+
+  private decodePixelsWithAlpha(
+    data: Uint8Array,
+    channels: number,
+    components: number
+  ) {
+    const padding = this.calculatePadding(channels);
+
+    for (let row = 0; row < this.height; row++) {
+      const rowOffset = (this.height - row - 1) * this.width;
+
+      for (let col = 0; col < this.width; col++) {
+        const pixelBaseIndex = (rowOffset + col) * channels;
+
+        // Decode color components
+        for (let component = components - 1; component >= 0; component--) {
+          data[pixelBaseIndex + component] = this.bufferData.readByte();
+        }
+
+        // Decode alpha channel
+        data[pixelBaseIndex + components] = this.bufferData.readByte();
+      }
+
+      this.bufferData.skip(padding);
+    }
+  }
+
+  private calculatePadding(channels: number): number {
+    return (this.width * channels) % 4 === 0
+      ? 0
+      : 4 - ((this.width * channels) % 4);
   }
 }

@@ -90,40 +90,75 @@ export default class BMPEncoder {
     this.encoded.setBigEndian();
 
     if (this.bitDepth === 1) {
-      let byte = 0;
-      for (let row = this.height - 1; row >= 0; row--) {
-        for (let col = 0; col < this.width; col++) {
-          if (col % 32 === 0 && row * this.width !== row * this.width + col) {
-            this.encoded.writeUint32(byte);
-            byte = 0;
-          }
-          byte |= this.data[row * this.width + col] << (31 - (col % 32));
-        }
-        this.encoded.writeUint32(byte);
-        byte = 0;
-      }
+      this.writeBitDepth1Pixels();
+    } else if (this.channels === this.components) {
+      this.writeStandardPixels();
     } else {
-      for (let row = 0; row < this.height; row++) {
-        for (let col = 0; col < this.width; col++) {
-          for (let channel = this.channels - 1; channel >= 0; channel--) {
-            this.encoded.writeByte(
-              this.data[
-                (this.width * (this.height - row - 1) + col) * this.channels +
-                  channel
-              ]
-            );
-          }
+      this.writePixelsWithAlpha();
+    }
+
+    this.encoded.setLittleEndian();
+  }
+
+  private writeBitDepth1Pixels() {
+    let byte = 0;
+    for (let row = this.height - 1; row >= 0; row--) {
+      for (let col = 0; col < this.width; col++) {
+        if (col % 32 === 0 && col !== 0) {
+          this.encoded.writeUint32(byte);
+          byte = 0;
         }
-        const padding =
-          (this.width * this.channels) % 4 === 0
-            ? 0
-            : 4 - ((this.width * this.channels) % 4);
-        for (let i = 0; i < padding; i++) {
-          this.encoded.writeByte(0);
+        byte |= this.data[row * this.width + col] << (31 - (col % 32));
+      }
+      this.encoded.writeUint32(byte);
+      byte = 0;
+    }
+  }
+
+  private writeStandardPixels() {
+    for (let row = 0; row < this.height; row++) {
+      const rowOffset = this.width * (this.height - row - 1);
+
+      for (let col = 0; col < this.width; col++) {
+        for (let channel = this.channels - 1; channel >= 0; channel--) {
+          const pixelIndex = (rowOffset + col) * this.channels + channel;
+          this.encoded.writeByte(this.data[pixelIndex]);
         }
       }
+
+      this.writePadding();
     }
-    this.encoded.setLittleEndian();
+  }
+
+  private writePixelsWithAlpha() {
+    for (let row = 0; row < this.height; row++) {
+      const rowOffset = this.width * (this.height - row - 1);
+
+      for (let col = 0; col < this.width; col++) {
+        // Write color components in reverse order
+        for (let component = this.components - 1; component >= 0; component--) {
+          const pixelIndex = (rowOffset + col) * this.channels + component;
+          this.encoded.writeByte(this.data[pixelIndex]);
+        }
+
+        // Write alpha channel
+        const alphaIndex = (rowOffset + col) * this.channels + this.components;
+        this.encoded.writeByte(this.data[alphaIndex]);
+      }
+
+      this.writePadding();
+    }
+  }
+
+  private writePadding() {
+    const padding =
+      (this.width * this.channels) % 4 === 0
+        ? 0
+        : 4 - ((this.width * this.channels) % 4);
+
+    for (let i = 0; i < padding; i++) {
+      this.encoded.writeByte(0);
+    }
   }
 
   writeColorTable() {
