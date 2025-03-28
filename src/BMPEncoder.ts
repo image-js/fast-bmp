@@ -201,23 +201,24 @@ export default class BMPEncoder {
   writeBitmapV5Header() {
     const rowSize = Math.floor((this.bitDepth * this.width + 31) / 32) * 4;
     const totalBytes = rowSize * this.height;
+
     // Size of the header
     this.encoded
-      .writeUint32(124) // Header size
-      .writeInt32(this.width) // bV5Width
-      .writeInt32(this.height) // bV5Height
-      .writeUint16(1) // bv5Planes - must be set to 1
-      .writeUint16(this.bitDepth) // bV5BitCount
-      .writeUint32(this.compression) // bV5Compression - No compression
-      .writeUint32(totalBytes) // bv5SizeImage - size of pixel buffer (can be 0 if uncompressed)
-      .writeInt32(this.xPixelsPerMeter) // bV5XPelsPerMeter - resolution
-      .writeInt32(this.yPixelsPerMeter) // bV5YPelsPerMeter - resolution
-      .writeUint32(2 ** this.bitDepth)
-      .writeUint32(2 ** this.bitDepth)
-      .writeUint32(this.colorMasks[0]) // bV5RedMask
-      .writeUint32(this.colorMasks[1]) // bV5GreenMask
-      .writeUint32(this.colorMasks[2]) // bV5BlueMask
-      .writeUint32(0x00000000) // bv5ReservedData
+      .writeUint32(124) // Header size, offset 14
+      .writeInt32(this.width) // bV5Width, offset 18
+      .writeInt32(this.height) // bV5Height, offset 22
+      .writeUint16(1) // bv5Planes - must be set to 1, offset 26
+      .writeUint16(this.bitDepth) // bV5BitCount, offset 30
+      .writeUint32(this.compression) // bV5Compression - No compression, offset 34
+      .writeUint32(totalBytes) // bv5SizeImage - size of pixel buffer (can be 0 if uncompressed), offset 38
+      .writeInt32(this.xPixelsPerMeter) // bV5XPelsPerMeter - resolution, offset 42
+      .writeInt32(this.yPixelsPerMeter) // bV5YPelsPerMeter - resolution, offset 46
+      .writeUint32(this.bitDepth <= 8 ? 2 ** this.bitDepth : 0) // number of colors used, set to 0 if number of pixels is bigger than 8 set to 0, offset 50
+      .writeUint32(this.bitDepth <= 8 ? 2 ** this.bitDepth : 0) // number of important colors, set to 0 if number of pixels is bigger than 8 set to 0,  offset 54
+      .writeUint32(this.colorMasks[0]) // bV5RedMask, offset 58
+      .writeUint32(this.colorMasks[1]) // bV5GreenMask, offset 62
+      .writeUint32(this.colorMasks[2]) // bV5BlueMask, offset 66
+      .writeUint32(this.channels === this.components ? 0x00000000 : 0xff000000) // bv5ReservedData
       .writeUint32(BITMAPV5HEADER.LogicalColorSpace.LCS_sRGB)
       .skip(36) // bV5Endpoints
       .skip(12) // bV5GammaRed, Green, Blue
