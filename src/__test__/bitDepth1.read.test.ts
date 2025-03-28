@@ -23,6 +23,9 @@ const data = {
   bitDepth: 1,
   components: 1,
   channels: 1,
+  logicalColorSpace: 2,
+  compression: 0,
+  colorMasks: [16711680, 65280, 255],
   xPixelsPerMeter: BITMAPV5HEADER.DEFAULT_PIXELS_PER_METER,
   yPixelsPerMeter: BITMAPV5HEADER.DEFAULT_PIXELS_PER_METER,
 };

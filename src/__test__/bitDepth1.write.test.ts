@@ -9,7 +9,10 @@ const data = {
   data: new Uint8Array(),
   bitDepth: 1,
   components: 1,
+  compression: 0,
   channels: 1,
+  logicalColorSpace: 2,
+  colorMasks: [16711680, 65280, 255],
   xPixelsPerMeter: BITMAPV5HEADER.DEFAULT_PIXELS_PER_METER,
   yPixelsPerMeter: 0,
 };
@@ -173,6 +176,9 @@ describe('encode image with bitDepth of 1', () => {
       bitDepth: 1,
       components: 1,
       channels: 1,
+      compression: 0,
+      colorMasks: [16711680, 65280, 255],
+      logicalColorSpace: 0,
     };
 
     testEncode(dataWithoutOptions, '5x5.bmp');

@@ -35,6 +35,18 @@ export interface ImageCodec {
    * Vertical number of pixels per meter.
    */
   yPixelsPerMeter?: number;
+  /**
+   * Image compression type.
+   */
+  compression: number;
+  /**
+   * Defines which bits represent which color.
+   */
+  colorMasks: number[];
+  /**
+   * Defines how colors are represented.
+   */
+  logicalColorSpace: number;
 }
 
 export default class BMPEncoder {
@@ -47,10 +59,10 @@ export default class BMPEncoder {
   xPixelsPerMeter: number;
   yPixelsPerMeter: number;
   encoded: IOBuffer = new IOBuffer();
+  compression: number;
+  colorMasks: number[];
+  logicalColorSpace;
   constructor(data: ImageCodec) {
-    if (data.bitDepth !== 1) {
-      throw new Error('Only bitDepth of 1 is supported');
-    }
     if (!data.height || !data.width) {
       throw new Error('ImageData width and height are required');
     }
@@ -64,6 +76,9 @@ export default class BMPEncoder {
       data.xPixelsPerMeter ?? BITMAPV5HEADER.DEFAULT_PIXELS_PER_METER;
     this.yPixelsPerMeter =
       data.yPixelsPerMeter ?? BITMAPV5HEADER.DEFAULT_PIXELS_PER_METER;
+    this.compression = data.compression;
+    this.colorMasks = data.colorMasks.slice();
+    this.logicalColorSpace = data.logicalColorSpace;
   }
 
   encode() {
@@ -71,7 +86,10 @@ export default class BMPEncoder {
     this.encoded.skip(14);
 
     this.writeBitmapV5Header();
-    this.writeColorTable();
+    if (this.bitDepth <= 8) {
+      this.writeColorTable();
+    }
+
     const offset = this.encoded.offset;
 
     this.writePixelArray();
@@ -86,11 +104,22 @@ export default class BMPEncoder {
 
   writePixelArray() {
     this.encoded.setBigEndian();
-    let byte = 0;
 
+    if (this.bitDepth === 1) {
+      this.writeBitDepth1Pixels();
+    } else if (this.channels === this.components) {
+      this.writeStandardPixels();
+    } else {
+      this.writePixelsWithAlpha();
+    }
+    this.encoded.setLittleEndian();
+  }
+
+  private writeBitDepth1Pixels() {
+    let byte = 0;
     for (let row = this.height - 1; row >= 0; row--) {
       for (let col = 0; col < this.width; col++) {
-        if (col % 32 === 0 && row * this.width !== row * this.width + col) {
+        if (col % 32 === 0 && col !== 0) {
           this.encoded.writeUint32(byte);
           byte = 0;
         }
@@ -99,14 +128,65 @@ export default class BMPEncoder {
       this.encoded.writeUint32(byte);
       byte = 0;
     }
-    this.encoded.setLittleEndian();
+  }
+
+  private writeStandardPixels() {
+    for (let row = 0; row < this.height; row++) {
+      const rowOffset = this.width * (this.height - row - 1);
+      for (let col = 0; col < this.width; col++) {
+        for (let channel = this.channels - 1; channel >= 0; channel--) {
+          const pixelIndex = (rowOffset + col) * this.channels + channel;
+          this.encoded.writeByte(this.data[pixelIndex]);
+        }
+      }
+
+      this.writePadding();
+    }
+  }
+
+  private writePixelsWithAlpha() {
+    for (let row = 0; row < this.height; row++) {
+      const rowOffset = this.width * (this.height - row - 1);
+      for (let col = 0; col < this.width; col++) {
+        // Write color components in reverse order
+        for (let component = this.components - 1; component >= 0; component--) {
+          const pixelIndex = (rowOffset + col) * this.channels + component;
+          this.encoded.writeByte(this.data[pixelIndex]);
+        }
+
+        // Write alpha channel
+        const alphaIndex = (rowOffset + col) * this.channels + this.components;
+        this.encoded.writeByte(this.data[alphaIndex]);
+      }
+
+      this.writePadding();
+    }
+  }
+
+  private writePadding() {
+    const padding =
+      (this.width * this.channels) % 4 === 0
+        ? 0
+        : 4 - ((this.width * this.channels) % 4);
+
+    for (let i = 0; i < padding; i++) {
+      this.encoded.writeByte(0);
+    }
   }
 
   writeColorTable() {
-    // We only handle 1-bit images
-    this.encoded
-      .writeUint32(0x00000000) // black
-      .writeUint32(0x00ffffff); // white
+    if (this.bitDepth === 1) {
+      this.encoded
+        .writeUint32(0x00000000) // black
+        .writeUint32(0x00ffffff); // white
+    } else {
+      //Grayscale 8 bit
+      for (let i = 0; i < 256; i++) {
+        this.encoded.writeUint32(
+          0x00000000 | (i << (4 * 4)) | (i << (2 * 4)) | i
+        );
+      }
+    }
   }
 
   writeBitmapFileHeader(imageOffset: number, fileSize: number) {
@@ -121,23 +201,24 @@ export default class BMPEncoder {
   writeBitmapV5Header() {
     const rowSize = Math.floor((this.bitDepth * this.width + 31) / 32) * 4;
     const totalBytes = rowSize * this.height;
+
     // Size of the header
     this.encoded
-      .writeUint32(124) // Header size
-      .writeInt32(this.width) // bV5Width
-      .writeInt32(this.height) // bV5Height
-      .writeUint16(1) // bv5Planes - must be set to 1
-      .writeUint16(this.bitDepth) // bV5BitCount
-      .writeUint32(BITMAPV5HEADER.Compression.BI_RGB) // bV5Compression - No compression
-      .writeUint32(totalBytes) // bv5SizeImage - size of pixel buffer (can be 0 if uncompressed)
-      .writeInt32(this.xPixelsPerMeter) // bV5XPelsPerMeter - resolution
-      .writeInt32(this.yPixelsPerMeter) // bV5YPelsPerMeter - resolution
-      .writeUint32(2 ** this.bitDepth)
-      .writeUint32(2 ** this.bitDepth)
-      .writeUint32(0x00ff0000) // bV5BlueMask
-      .writeUint32(0x0000ff00) // bV5GreenMask
-      .writeUint32(0x000000ff) // bV5RedMask
-      .writeUint32(0x00000000) // bv5ReservedData
+      .writeUint32(124) // Header size, offset 14
+      .writeInt32(this.width) // bV5Width, offset 18
+      .writeInt32(this.height) // bV5Height, offset 22
+      .writeUint16(1) // bv5Planes - must be set to 1, offset 26
+      .writeUint16(this.bitDepth) // bV5BitCount, offset 30
+      .writeUint32(this.compression) // bV5Compression - No compression, offset 34
+      .writeUint32(totalBytes) // bv5SizeImage - size of pixel buffer (can be 0 if uncompressed), offset 38
+      .writeInt32(this.xPixelsPerMeter) // bV5XPelsPerMeter - resolution, offset 42
+      .writeInt32(this.yPixelsPerMeter) // bV5YPelsPerMeter - resolution, offset 46
+      .writeUint32(this.bitDepth <= 8 ? 2 ** this.bitDepth : 0) // number of colors used, set to 0 if number of pixels is bigger than 8 set to 0, offset 50
+      .writeUint32(this.bitDepth <= 8 ? 2 ** this.bitDepth : 0) // number of important colors, set to 0 if number of pixels is bigger than 8 set to 0,  offset 54
+      .writeUint32(this.colorMasks[0]) // bV5RedMask, offset 58
+      .writeUint32(this.colorMasks[1]) // bV5GreenMask, offset 62
+      .writeUint32(this.colorMasks[2]) // bV5BlueMask, offset 66
+      .writeUint32(this.channels === this.components ? 0x00000000 : 0xff000000) // bv5ReservedData
       .writeUint32(BITMAPV5HEADER.LogicalColorSpace.LCS_sRGB)
       .skip(36) // bV5Endpoints
       .skip(12) // bV5GammaRed, Green, Blue
