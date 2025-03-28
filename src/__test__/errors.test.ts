@@ -11,8 +11,11 @@ describe('errors', () => {
         components: 1,
         bitDepth: 1,
         channels: 1,
+        compression: 0,
+        colorMasks: [0, 0, 0],
         xPixelsPerMeter: 0,
         yPixelsPerMeter: 0,
+        logicalColorSpace: 0,
         data: new Uint8Array(2),
       });
     }).toThrow(/width and height are required/);
@@ -24,8 +27,11 @@ describe('errors', () => {
         components: 1,
         bitDepth: 1,
         channels: 1,
+        compression: 0,
+        colorMasks: [0, 0, 0],
         xPixelsPerMeter: 0,
         yPixelsPerMeter: 0,
+        logicalColorSpace: 0,
         data: new Uint8Array(2),
       });
     }).toThrow(/width and height are required/);
