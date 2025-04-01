@@ -104,7 +104,6 @@ export default class BMPEncoder {
 
   writePixelArray() {
     this.encoded.setBigEndian();
-
     if (this.bitDepth === 1) {
       this.writeBitDepth1Pixels();
     } else if (this.channels === this.components) {
@@ -132,34 +131,32 @@ export default class BMPEncoder {
 
   private writeStandardPixels() {
     for (let row = 0; row < this.height; row++) {
-      const rowOffset = this.width * (this.height - row - 1);
+      const rowOffset = this.width * (this.height - row - 1) * this.channels;
       for (let col = 0; col < this.width; col++) {
         for (let channel = this.channels - 1; channel >= 0; channel--) {
-          const pixelIndex = (rowOffset + col) * this.channels + channel;
-          this.encoded.writeByte(this.data[pixelIndex]);
+          this.encoded.writeByte(
+            this.data[rowOffset + col * this.channels + channel]
+          );
         }
       }
-
       this.writePadding();
     }
   }
 
   private writePixelsWithAlpha() {
+    const pixel = 0;
     for (let row = 0; row < this.height; row++) {
       const rowOffset = this.width * (this.height - row - 1);
       for (let col = 0; col < this.width; col++) {
-        // Write color components in reverse order
-        for (let component = this.components - 1; component >= 0; component--) {
-          const pixelIndex = (rowOffset + col) * this.channels + component;
-          this.encoded.writeByte(this.data[pixelIndex]);
-        }
-
-        // Write alpha channel
-        const alphaIndex = (rowOffset + col) * this.channels + this.components;
-        this.encoded.writeByte(this.data[alphaIndex]);
+        const pixelIndex = (rowOffset + col) * this.channels;
+        this.encoded.writeUint32(
+          pixel |
+            (this.data[pixelIndex + 2] << (3 * 8)) |
+            (this.data[pixelIndex + 1] << (2 * 8)) |
+            (this.data[pixelIndex] << 8) |
+            this.data[pixelIndex + 3]
+        );
       }
-
-      this.writePadding();
     }
   }
 

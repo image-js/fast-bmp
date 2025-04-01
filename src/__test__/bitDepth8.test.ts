@@ -22,6 +22,13 @@ describe('decode image with bit depth of 8', () => {
 
     expect(Buffer.from(encodedBuffer)).toEqual(buffer);
   });
+  test('simple RGB image to check color encoding', () => {
+    const buffer = fs.readFileSync('src/__test__/files/bmp_24.bmp');
+    const imageResult = decode(buffer);
+    const encodedBuffer = encode(imageResult);
+
+    expect(Buffer.from(encodedBuffer)).toEqual(buffer);
+  });
   test('5x5 color grid image', () => {
     const buffer = fs.readFileSync('src/__test__/files/ColorGrid5x5.bmp');
     const imageResult = decode(buffer);
