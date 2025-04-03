@@ -1,31 +1,17 @@
-import fs from 'node:fs';
-import path from 'node:path';
-
 import { decode, encode } from '..';
-import type { ImageCodec } from '../BMPEncoder';
 import { BITMAPV5HEADER } from '../constants';
 
-/**
- * Helper function to check decoding results.
- * @param data - Comparison data.
- * @param filename - File to decode.
- */
-function testDecode(data: ImageCodec, filename: string) {
-  const fileData = fs.readFileSync(path.join(__dirname, 'files', filename));
-  const decodedInfo = decode(fileData);
-  expect(decodedInfo).toEqual(data);
-}
+import { testDecode } from './testDecode';
 
 const data = {
   width: 0,
   height: 0,
   data: new Uint8Array(),
-  bitDepth: 1,
-  components: 1,
+  bitsPerPixel: 1,
   channels: 1,
-  logicalColorSpace: 2,
+  colorMasks: [0x00ff0000, 0x0000ff00, 0x000000ff],
   compression: 0,
-  colorMasks: [16711680, 65280, 255],
+  components: 1,
   xPixelsPerMeter: BITMAPV5HEADER.DEFAULT_PIXELS_PER_METER,
   yPixelsPerMeter: BITMAPV5HEADER.DEFAULT_PIXELS_PER_METER,
 };
@@ -39,7 +25,6 @@ describe('decode image with bitDepth of 1', () => {
     // 0 0 0 0 0
     data.width = 5;
     data.height = 5;
-
     data.data = new Uint8Array([
       0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0,
     ]);

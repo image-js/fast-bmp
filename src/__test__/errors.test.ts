@@ -9,13 +9,12 @@ describe('errors', () => {
         width: 0,
         height: 10,
         components: 1,
-        bitDepth: 1,
+        bitsPerPixel: 1,
         channels: 1,
         compression: 0,
         colorMasks: [0, 0, 0],
         xPixelsPerMeter: 0,
         yPixelsPerMeter: 0,
-        logicalColorSpace: 0,
         data: new Uint8Array(2),
       });
     }).toThrow(/width and height are required/);
@@ -25,13 +24,12 @@ describe('errors', () => {
         width: 10,
         height: 0,
         components: 1,
-        bitDepth: 1,
+        bitsPerPixel: 1,
         channels: 1,
         compression: 0,
         colorMasks: [0, 0, 0],
         xPixelsPerMeter: 0,
         yPixelsPerMeter: 0,
-        logicalColorSpace: 0,
         data: new Uint8Array(2),
       });
     }).toThrow(/width and height are required/);
@@ -42,4 +40,12 @@ describe('errors', () => {
       decode(fs.readFileSync('src/__test__/files/color-balance.png'));
     }).toThrow(/This is not a BMP image or the encoding is not correct./i);
   });
+  /*
+  it('should throw if bmp image is compressed', () => {
+    expect(() => {
+      decode(fs.readFileSync('src/__test__/files/bmp_24-min.bmp'));
+    }).toThrow(
+      /Only BI_RGB and BI_BITFIELDS compression methods are allowed./i
+    );
+  });*/
 });

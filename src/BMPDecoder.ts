@@ -7,13 +7,11 @@ export default class BMPDecoder {
   pixelDataOffset: number;
   width: number;
   height: number;
-  bitDepth: number;
+  bitsPerPixel: number;
   xPixelsPerMeter: number;
   yPixelsPerMeter: number;
   compression: number;
   colorMasks: number[];
-  imageSize: number;
-  logicalColorSpace: number;
   constructor(bufferData: Buffer) {
     this.bufferData = new IOBuffer(bufferData);
     const formatCheck = this.bufferData.readBytes(2);
@@ -25,29 +23,41 @@ export default class BMPDecoder {
     this.pixelDataOffset = this.bufferData.skip(8).readUint32();
     this.width = this.bufferData.skip(4).readUint32();
     this.height = this.bufferData.readUint32();
-    this.bitDepth = this.bufferData.seek(28).readUint16();
+    this.bitsPerPixel = this.bufferData.seek(28).readUint16();
     this.compression = this.bufferData.readUint32();
-    this.imageSize = this.bufferData.readUint32();
+    if (this.compression !== 0 && this.compression !== 3) {
+      throw new Error(
+        'Only BI_RGB and BI_BITFIELDS compression methods are allowed.'
+      );
+    }
+    this.bufferData.skip(1); // skipping image size.
     this.xPixelsPerMeter = this.bufferData.seek(38).readInt32();
     this.yPixelsPerMeter = this.bufferData.readInt32();
-    this.logicalColorSpace = this.bufferData.readUint32();
+    this.bufferData.skip(1);
     this.colorMasks = [
       this.bufferData.seek(54).readUint32(),
       this.bufferData.readUint32(),
       this.bufferData.readUint32(),
     ];
+    if (
+      this.colorMasks[0] > 0x00ff0000 ||
+      this.colorMasks[1] > 0x0000ff00 ||
+      this.colorMasks[2] > 0x000000ff
+    ) {
+      throw new Error('This color mask is not supported.');
+    }
   }
 
   decode(): ImageCodec {
     this.bufferData.seek(this.pixelDataOffset);
     this.bufferData.setBigEndian();
-    const channels = Math.ceil(this.bitDepth / 8);
+    const channels = Math.ceil(this.bitsPerPixel / 8);
     const components = channels % 2 === 0 ? channels - 1 : channels;
     const data: Uint8Array = this.decodePixelData(channels, components);
     return {
       width: this.width,
       height: this.height,
-      bitDepth: this.bitDepth,
+      bitsPerPixel: this.bitsPerPixel,
       compression: this.compression,
       colorMasks: this.colorMasks,
       channels,
@@ -55,13 +65,12 @@ export default class BMPDecoder {
       data,
       yPixelsPerMeter: this.yPixelsPerMeter,
       xPixelsPerMeter: this.xPixelsPerMeter,
-      logicalColorSpace: this.logicalColorSpace,
     };
   }
 
   decodePixelData(channels: number, components: number): Uint8Array {
     const data = new Uint8Array(this.height * this.width * channels);
-    if (this.bitDepth === 1) {
+    if (this.bitsPerPixel === 1) {
       this.decodeBitDepth1Pixels(data);
     } else if (channels === components) {
       this.decodeStandardPixels(data, channels);
