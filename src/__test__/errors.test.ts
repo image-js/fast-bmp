@@ -40,12 +40,17 @@ describe('errors', () => {
       decode(fs.readFileSync('src/__test__/files/color-balance.png'));
     }).toThrow(/This is not a BMP image or the encoding is not correct./i);
   });
-  /*
+
   it('should throw if bmp image is compressed', () => {
     expect(() => {
-      decode(fs.readFileSync('src/__test__/files/bmp_24-min.bmp'));
+      decode(fs.readFileSync('src/__test__/files/mt_rle.bmp'));
     }).toThrow(
       /Only BI_RGB and BI_BITFIELDS compression methods are allowed./i
     );
-  });*/
+  });
+  it('should throw if bmp color masks are not compatible', () => {
+    expect(() => {
+      decode(fs.readFileSync('src/__test__/files/colorMask.bmp'));
+    }).toThrow(/This color mask is not supported./i);
+  });
 });
