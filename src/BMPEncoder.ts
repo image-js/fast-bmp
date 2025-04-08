@@ -69,6 +69,14 @@ export default class BMPEncoder {
       throw new Error('Invalid data length.');
     }
     this.bitsPerPixel = data.bitsPerPixel;
+    if (
+      this.bitsPerPixel !== 1 &&
+      this.bitsPerPixel !== 8 &&
+      this.bitsPerPixel !== 24 &&
+      this.bitsPerPixel !== 32
+    ) {
+      throw new Error('This number of bits per pixel is not supported.');
+    }
     this.channels = data.channels;
     this.components =
       this.channels % 2 === 0 ? this.channels - 1 : this.channels;

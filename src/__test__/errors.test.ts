@@ -54,9 +54,19 @@ describe('errors', () => {
   it('should throw if image is BI_BITFIELDS 16bit encoded', () => {
     expect(() => {
       decode(fs.readFileSync('src/__test__/files/custom16bit.bmp'));
-    }).toThrow(
-      /16 bit encoding with BI_BITFIELDS compression is not supported./i
-    );
+    }).toThrow(/4 and 16 bits per pixel are not supported./i);
+  });
+  it('should throw if color masks are not supported', () => {
+    const data = createTestData({
+      colorModel: 'RGBA',
+      width: 1,
+      height: 1,
+      data: new Uint8Array([1, 1, 1, 1]),
+      colorMasks: [0x0, 0x10, 0x56],
+    });
+    expect(() => {
+      encode(data);
+    }).toThrow(/These color masks are not supported by this color model./i);
   });
   it('should throw if data is invalid', () => {
     const data = createTestData({
@@ -68,5 +78,30 @@ describe('errors', () => {
     expect(() => {
       encode(data);
     }).toThrow(/Invalid data length./i);
+  });
+  it('should throw if colorModel is invalid for test data', () => {
+    expect(() => {
+      createTestData({
+        //@ts-expect-error Invalid color model.
+        colorModel: 'rgb',
+        width: 2,
+        height: 2,
+        data: new Uint8Array([1, 1, 1, 1]),
+      });
+    }).toThrow(/Invalid color model./i);
+  });
+
+  it('should throw if number of bits per pixel is invalid', () => {
+    expect(() => {
+      const data = createTestData({
+        colorModel: 'RGBA',
+        width: 1,
+        height: 1,
+        data: new Uint8Array([1, 1, 1, 1]),
+      });
+
+      data.bitsPerPixel = 10;
+      encode(data);
+    }).toThrow(/This number of bits per pixel is not supported./i);
   });
 });
