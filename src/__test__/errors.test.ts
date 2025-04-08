@@ -56,18 +56,7 @@ describe('errors', () => {
       decode(fs.readFileSync('src/__test__/files/custom16bit.bmp'));
     }).toThrow(/4 and 16 bits per pixel are not supported./i);
   });
-  it('should throw if color masks are not supported', () => {
-    const data = createTestData({
-      colorModel: 'RGBA',
-      width: 1,
-      height: 1,
-      data: new Uint8Array([1, 1, 1, 1]),
-      colorMasks: [0x0, 0x10, 0x56],
-    });
-    expect(() => {
-      encode(data);
-    }).toThrow(/These color masks are not supported by this color model./i);
-  });
+
   it('should throw if data is invalid', () => {
     const data = createTestData({
       colorModel: 'RGBA',
@@ -103,5 +92,24 @@ describe('errors', () => {
       data.bitsPerPixel = 10;
       encode(data);
     }).toThrow(/This number of bits per pixel is not supported./i);
+  });
+  it('should throw if color masks are invalid during encoding', () => {
+    expect(() => {
+      const image = fs.readFileSync('src/__test__/files/ColorGrid5x5.bmp');
+      image.writeUInt32LE(0x12345678, 54);
+      decode(Buffer.from(image));
+    }).toThrow(/These color masks are not supported by this color model./i);
+  });
+  it('should throw if color masks are not supported during decoding', () => {
+    const data = createTestData({
+      colorModel: 'RGBA',
+      width: 1,
+      height: 1,
+      data: new Uint8Array([1, 1, 1, 1]),
+      colorMasks: [0x0, 0x10, 0x56],
+    });
+    expect(() => {
+      encode(data);
+    }).toThrow(/These color masks are not supported by this color model./i);
   });
 });

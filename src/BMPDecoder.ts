@@ -39,13 +39,16 @@ export default class BMPDecoder {
       this.bufferData.readUint32(),
       this.bufferData.readUint32(),
     ];
+
     if (
       this.bitsPerPixel === 32 &&
-      this.colorMasks[0] !== 0x00ff0000 &&
-      this.colorMasks[1] !== 0x0000ff00 &&
-      this.colorMasks[2] !== 0x000000ff
+      (this.colorMasks[0] !== 0x00ff0000 ||
+        this.colorMasks[1] !== 0x0000ff00 ||
+        this.colorMasks[2] !== 0x000000ff)
     ) {
-      throw new Error('This number of bits per pixel is not supported.');
+      throw new Error(
+        'These color masks are not supported by this color model.'
+      );
     }
     this.bufferData.skip(1); // skipping image size.
     this.xPixelsPerMeter = this.bufferData.seek(38).readInt32();
