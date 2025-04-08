@@ -2,6 +2,8 @@ import fs from 'node:fs';
 
 import { decode, encode } from '..';
 
+import { createTestData } from './createTestData';
+
 describe('errors', () => {
   it('should throw if width or height are undefined or 0', () => {
     expect(() => {
@@ -48,9 +50,23 @@ describe('errors', () => {
       /Only BI_RGB and BI_BITFIELDS compression methods are allowed./i
     );
   });
-  it('should throw if bmp color masks are not compatible', () => {
+
+  it('should throw if image is BI_BITFIELDS 16bit encoded', () => {
     expect(() => {
-      decode(fs.readFileSync('src/__test__/files/colorMask.bmp'));
-    }).toThrow(/This color mask is not supported./i);
+      decode(fs.readFileSync('src/__test__/files/custom16bit.bmp'));
+    }).toThrow(
+      /16 bit encoding with BI_BITFIELDS compression is not supported./i
+    );
+  });
+  it('should throw if data is invalid', () => {
+    const data = createTestData({
+      colorModel: 'RGBA',
+      width: 5,
+      height: 5,
+      data: new Uint8Array([1, 1, 1, 1, 1]),
+    });
+    expect(() => {
+      encode(data);
+    }).toThrow(/Invalid data length./i);
   });
 });

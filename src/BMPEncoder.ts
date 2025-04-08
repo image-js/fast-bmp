@@ -60,11 +60,14 @@ export default class BMPEncoder {
 
   constructor(data: ImageCodec) {
     if (!data.height || !data.width) {
-      throw new Error('ImageData width and height are required');
+      throw new Error('ImageData width and height are required.');
     }
     this.data = data.data as Uint8Array;
     this.width = data.width;
     this.height = data.height;
+    if (this.data.length !== data.width * data.height * data.channels) {
+      throw new Error('Invalid data length.');
+    }
     this.bitsPerPixel = data.bitsPerPixel;
     this.channels = data.channels;
     this.components =
@@ -207,7 +210,18 @@ export default class BMPEncoder {
       .writeInt32(this.xPixelsPerMeter) // bV5XPelsPerMeter - resolution, offset 42
       .writeInt32(this.yPixelsPerMeter) // bV5YPelsPerMeter - resolution, offset 46
       .writeUint32(this.bitsPerPixel <= 8 ? 2 ** this.bitsPerPixel : 0) // number of colors used, set to 0 if number of pixels is bigger than 8 set to 0, offset 50
-      .writeUint32(this.bitsPerPixel <= 8 ? 2 ** this.bitsPerPixel : 0) // number of important colors, set to 0 if number of pixels is bigger than 8 set to 0,  offset 54
+      .writeUint32(this.bitsPerPixel <= 8 ? 2 ** this.bitsPerPixel : 0); // number of important colors, set to 0 if number of pixels is bigger than 8 set to 0,  offset 54
+    if (
+      this.bitsPerPixel === 32 &&
+      this.colorMasks[0] !== 0x00ff0000 &&
+      this.colorMasks[1] !== 0x0000ff00 &&
+      this.colorMasks[2] !== 0x000000ff
+    ) {
+      throw new Error(
+        'These color masks are not supported by this color model.'
+      );
+    }
+    this.encoded
       .writeUint32(this.colorMasks[0]) // bV5RedMask, offset 58
       .writeUint32(this.colorMasks[1]) // bV5GreenMask, offset 62
       .writeUint32(this.colorMasks[2]) // bV5BlueMask, offset 66

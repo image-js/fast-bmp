@@ -29,23 +29,20 @@ export default class BMPDecoder {
       throw new Error(
         'Only BI_RGB and BI_BITFIELDS compression methods are allowed.'
       );
+    } else if (this.compression === 3 && this.bitsPerPixel !== 32) {
+      throw new Error(
+        '16 bit encoding with BI_BITFIELDS compression is not supported.'
+      );
     }
-    this.bufferData.skip(1); // skipping image size.
-    this.xPixelsPerMeter = this.bufferData.seek(38).readInt32();
-    this.yPixelsPerMeter = this.bufferData.readInt32();
-    this.bufferData.skip(1);
     this.colorMasks = [
       this.bufferData.seek(54).readUint32(),
       this.bufferData.readUint32(),
       this.bufferData.readUint32(),
     ];
-    if (
-      this.colorMasks[0] > 0x00ff0000 ||
-      this.colorMasks[1] > 0x0000ff00 ||
-      this.colorMasks[2] > 0x000000ff
-    ) {
-      throw new Error('This color mask is not supported.');
-    }
+    this.bufferData.skip(1); // skipping image size.
+    this.xPixelsPerMeter = this.bufferData.seek(38).readInt32();
+    this.yPixelsPerMeter = this.bufferData.readInt32();
+    this.bufferData.skip(1);
   }
 
   decode(): ImageCodec {
