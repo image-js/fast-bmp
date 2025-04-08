@@ -221,9 +221,9 @@ export default class BMPEncoder {
       .writeUint32(this.bitsPerPixel <= 8 ? 2 ** this.bitsPerPixel : 0); // number of important colors, set to 0 if number of pixels is bigger than 8 set to 0,  offset 54
     if (
       this.bitsPerPixel === 32 &&
-      this.colorMasks[0] !== 0x00ff0000 &&
-      this.colorMasks[1] !== 0x0000ff00 &&
-      this.colorMasks[2] !== 0x000000ff
+      (this.colorMasks[0] !== 0x00ff0000 ||
+        this.colorMasks[1] !== 0x0000ff00 ||
+        this.colorMasks[2] !== 0x000000ff)
     ) {
       throw new Error(
         'These color masks are not supported by this color model.'

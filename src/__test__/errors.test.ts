@@ -68,17 +68,6 @@ describe('errors', () => {
       encode(data);
     }).toThrow(/Invalid data length./i);
   });
-  it('should throw if colorModel is invalid for test data', () => {
-    expect(() => {
-      createTestData({
-        //@ts-expect-error Invalid color model.
-        colorModel: 'rgb',
-        width: 2,
-        height: 2,
-        data: new Uint8Array([1, 1, 1, 1]),
-      });
-    }).toThrow(/Invalid color model./i);
-  });
 
   it('should throw if number of bits per pixel is invalid', () => {
     expect(() => {
@@ -93,13 +82,15 @@ describe('errors', () => {
       encode(data);
     }).toThrow(/This number of bits per pixel is not supported./i);
   });
-  it('should throw if color masks are invalid during encoding', () => {
+
+  it('should throw if color masks are not supported during encoding', () => {
     expect(() => {
       const image = fs.readFileSync('src/__test__/files/ColorGrid5x5.bmp');
-      image.writeUInt32LE(0x12345678, 54);
+      image.writeUInt32LE(0x12345678, 58);
       decode(Buffer.from(image));
     }).toThrow(/These color masks are not supported by this color model./i);
   });
+
   it('should throw if color masks are not supported during decoding', () => {
     const data = createTestData({
       colorModel: 'RGBA',
@@ -112,4 +103,16 @@ describe('errors', () => {
       encode(data);
     }).toThrow(/These color masks are not supported by this color model./i);
   });
+});
+
+it('should throw if colorModel is invalid for test data', () => {
+  expect(() => {
+    createTestData({
+      //@ts-expect-error Invalid color model.
+      colorModel: 'rgb',
+      width: 2,
+      height: 2,
+      data: new Uint8Array([1, 1, 1, 1]),
+    });
+  }).toThrow(/Invalid color model./i);
 });

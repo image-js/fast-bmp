@@ -16,7 +16,7 @@
 
 </h3>
 
-A library for encoding bmp image file format. Specifications taken from
+A library for encoding bmp image file format with `BITMAPV5HEADER`. Specifications taken from
 [Wikipedia BMP format page](https://en.wikipedia.org/wiki/BMP_file_format)
 
 # Supported features
