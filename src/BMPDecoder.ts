@@ -24,8 +24,13 @@ export default class BMPDecoder {
     this.width = this.bufferData.skip(4).readUint32();
     this.height = this.bufferData.readUint32();
     this.bitsPerPixel = this.bufferData.seek(28).readUint16();
-    if (this.bitsPerPixel === 16 || this.bitsPerPixel === 4) {
-      throw new Error('4 and 16 bits per pixel are not supported.');
+    if (
+      this.bitsPerPixel !== 1 &&
+      this.bitsPerPixel !== 8 &&
+      this.bitsPerPixel !== 24 &&
+      this.bitsPerPixel !== 32
+    ) {
+      throw new Error('This number of bits per pixel is not supported.');
     }
     this.compression = this.bufferData.readUint32();
     if (this.compression !== 0 && this.compression !== 3) {
@@ -47,7 +52,7 @@ export default class BMPDecoder {
         this.colorMasks[2] !== 0x000000ff)
     ) {
       throw new Error(
-        'These color masks are not supported by this color model.'
+        'Unsupported color masks detected in 32-bit BMP image. Only standard RGBA (0x00ff0000, 0x0000ff00, 0x000000ff) masks are supported.'
       );
     }
     this.bufferData.skip(1); // skipping image size.

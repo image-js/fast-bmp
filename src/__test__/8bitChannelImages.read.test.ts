@@ -14,8 +14,11 @@ describe('decode image with bitDepth of 1', () => {
       colorModel: 'RGBA',
       width: 2,
       height: 2,
+      compression: 3,
+      // prettier-ignore
       data: new Uint8Array([
-        255, 0, 0, 255, 0, 255, 0, 255, 0, 0, 255, 255, 255, 255, 255, 255,
+        255, 0, 0, 255, 0, 255, 0, 255,
+        0, 0, 255, 255, 255, 255, 255, 255,
       ]),
     });
 
@@ -46,9 +49,16 @@ describe('decode image with bitDepth of 1', () => {
       colorModel: 'RGB',
       width: 1,
       height: 6,
-      data: new Uint8Array([
-        255, 0, 0, 0, 255, 0, 0, 0, 255, 255, 0, 0, 0, 255, 0, 0, 0, 255,
-      ]),
+      data: new Uint8Array(
+        [
+          [255, 0, 0],
+          [0, 255, 0],
+          [0, 0, 255],
+          [255, 0, 0],
+          [0, 255, 0],
+          [0, 0, 255],
+        ].flat()
+      ),
     });
     testDecode(data, '1x6RGB.bmp');
   });
@@ -58,10 +68,14 @@ describe('decode image with bitDepth of 1', () => {
       colorModel: 'GREYSCALE',
       width: 6,
       height: 4,
-      data: new Uint8Array([
-        255, 255, 255, 0, 0, 0, 110, 110, 110, 110, 110, 110, 0, 0, 0, 255, 255,
-        255, 0, 50, 100, 150, 200, 250,
-      ]),
+      data: new Uint8Array(
+        [
+          [255, 255, 255, 0, 0, 0],
+          [110, 110, 110, 110, 110, 110],
+          [0, 0, 0, 255, 255, 255],
+          [0, 50, 100, 150, 200, 250],
+        ].flat()
+      ),
     });
     testDecode(data, '6x4Grey.bmp');
   });

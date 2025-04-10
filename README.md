@@ -16,10 +16,15 @@
 
 </h3>
 
-A library for encoding bmp image file format with `BITMAPV5HEADER`. Specifications taken from
-[Wikipedia BMP format page](https://en.wikipedia.org/wiki/BMP_file_format)
+A library for encoding and decoding bmp image file format.
+References:
+
+- [Wikipedia BMP format page](https://en.wikipedia.org/wiki/BMP_file_format)
+- [Microsoft BMPV5 format page](https://learn.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-bitmapv5header)
 
 # Supported features
+
+This library only supports V5 headers.
 
 - binary (1-bit per pixel)
 - greyscale (8-bits per pixel)
@@ -38,12 +43,13 @@ import { encode } from 'fast-bmp';
 // 0 1 0 1 0
 // 0 1 1 1 0
 // 0 0 0 0 0
+const data = new Uint8Array([
+  0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0,
+]);
 const imageData = {
   width: 5,
   height: 5,
-  data: new Uint8Array([
-    0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0,
-  ]),
+  data,
   bitsPerPixel: 1,
   components: 1,
   channels: 1,
@@ -70,7 +76,11 @@ const imageData = decode(buffer);
 width: 5,
 height: 5,
 data: new Uint8Array([
-    0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 
+    0, 1, 1, 1, 0, 
+    0, 1, 0, 1, 0, 
+    0, 1, 1, 1, 0, 
+    0, 0, 0, 0, 0,
   ]),
 bitsPerPixel: 1,
 components: 1,

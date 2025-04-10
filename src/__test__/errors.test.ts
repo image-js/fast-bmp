@@ -54,7 +54,7 @@ describe('errors', () => {
   it('should throw if image is BI_BITFIELDS 16bit encoded', () => {
     expect(() => {
       decode(fs.readFileSync('src/__test__/files/custom16bit.bmp'));
-    }).toThrow(/4 and 16 bits per pixel are not supported./i);
+    }).toThrow(/This number of bits per pixel is not supported./i);
   });
 
   it('should throw if data is invalid', () => {
@@ -88,7 +88,9 @@ describe('errors', () => {
       const image = fs.readFileSync('src/__test__/files/ColorGrid5x5.bmp');
       image.writeUInt32LE(0x12345678, 58);
       decode(Buffer.from(image));
-    }).toThrow(/These color masks are not supported by this color model./i);
+    }).toThrow(
+      /Unsupported color masks detected in 32-bit BMP image. Only standard RGBA \(0x00ff0000, 0x0000ff00, 0x000000ff\) masks are supported./i
+    );
   });
 
   it('should throw if color masks are not supported during decoding', () => {
@@ -101,7 +103,9 @@ describe('errors', () => {
     });
     expect(() => {
       encode(data);
-    }).toThrow(/These color masks are not supported by this color model./i);
+    }).toThrow(
+      /Unsupported color masks detected in 32-bit BMP image. Only standard RGBA \(0x00ff0000, 0x0000ff00, 0x000000ff\) masks are supported./i
+    );
   });
 });
 

@@ -4,43 +4,43 @@ import { BITMAPV5HEADER } from './constants';
 
 export interface ImageCodec {
   /**
-   * Image height. Data offset: 18
+   * Image height.
    */
   height: number;
   /**
-   * Image width. Data offset: 22
+   * Image width.
    */
   width: number;
   /**
-   * Image number of channels. Calculated with decoded data.
+   * Image number of channels.
    */
   channels: number;
   /**
-   * Image number of channels excluding alpha. Calculated with decoded data.
+   * Image number of channels excluding alpha.
    */
   components?: number;
   /**
-   * Image bit depth. Data offset: 30
+   * Image bit depth.
    */
   bitsPerPixel: number;
   /**
-   * Image compression type. Data offset: 34
+   * Image compression type.
    */
   compression?: number;
   /**
-   * Defines which bits represent which color. Data offset: 58 to 66
+   * Defines which bits represent which color.
    */
   colorMasks?: number[];
   /**
-   * Horizontal number of pixels per meter. Data offset: 38
+   * Horizontal number of pixels per meter.
    */
   xPixelsPerMeter?: number;
   /**
-   * Vertical number of pixels per meter. Data offset: 42
+   * Vertical number of pixels per meter.
    */
   yPixelsPerMeter?: number;
   /**
-   * Image data. Data offset: 146.
+   * Image data.
    */
   data: IOBuffer | ArrayBufferLike | ArrayBufferView | Buffer;
 }
@@ -56,7 +56,7 @@ export default class BMPEncoder {
   yPixelsPerMeter: number;
   encoded: IOBuffer = new IOBuffer();
   compression: number;
-  colorMasks: number[];
+  colorMasks: [number, number, number];
 
   constructor(data: ImageCodec) {
     if (!data.height || !data.width) {
@@ -85,7 +85,9 @@ export default class BMPEncoder {
     this.yPixelsPerMeter =
       data.yPixelsPerMeter ?? BITMAPV5HEADER.DEFAULT_PIXELS_PER_METER;
     this.compression = data.compression ?? 0;
-    this.colorMasks = data.colorMasks ?? [0x00ff0000, 0x0000ff00, 0x000000ff];
+    this.colorMasks = (data.colorMasks as [number, number, number]) ?? [
+      0x00ff0000, 0x0000ff00, 0x000000ff,
+    ];
   }
 
   encode() {
@@ -226,7 +228,7 @@ export default class BMPEncoder {
         this.colorMasks[2] !== 0x000000ff)
     ) {
       throw new Error(
-        'These color masks are not supported by this color model.'
+        'Unsupported color masks detected in 32-bit BMP image. Only standard RGBA (0x00ff0000, 0x0000ff00, 0x000000ff) masks are supported.'
       );
     }
     this.encoded
