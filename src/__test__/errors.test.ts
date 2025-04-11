@@ -89,7 +89,9 @@ describe('errors', () => {
 
   it('should throw if color masks are not supported during encoding', () => {
     expect(() => {
-      const image = fs.readFileSync('src/__test__/files/ColorGrid5x5.bmp');
+      const image = fs.readFileSync(
+        'src/__test__/files/GIMP_images/ColorGrid5x5.bmp'
+      );
       image.writeUInt32LE(0x12345678, 58);
       decode(Buffer.from(image));
     }).toThrow(

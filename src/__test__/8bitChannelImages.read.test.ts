@@ -81,7 +81,7 @@ describe('decode image with bitDepth of 1', () => {
   });
   it('checks BI_BITFIELDS compression decoding', () => {
     const imageData = decode(
-      fs.readFileSync('src/__test__/files/ColorGrid5x5.bmp')
+      fs.readFileSync('src/__test__/files/GIMP_images/ColorGrid5x5.bmp')
     );
     testEncode(imageData, 'ColorGrid5x5.bmp');
   });

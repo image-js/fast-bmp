@@ -10,7 +10,9 @@ import type { ImageCodec } from '../BMPEncoder';
  * @param filename - File to decode.
  */
 export function testDecode(data: ImageCodec, filename: string) {
-  const fileData = fs.readFileSync(path.join(__dirname, 'files', filename));
+  const fileData = fs.readFileSync(
+    path.join(__dirname, 'files/GIMP_images/', filename)
+  );
   const decodedInfo = decode(fileData);
   expect(decodedInfo).toEqual(data);
 }
