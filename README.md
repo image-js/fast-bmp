@@ -129,7 +129,7 @@ To generate binary images you need to open an image with GIMP, go to `Image`->`M
 
 There, you need to choose `Use black and white (1 bit) palette` and click `Convert`.
 
-![Convert to 1 bit](docImages/convert1Bit.png)
+![Convert to 1 bit](docImages/convertTo1Bit.png)
 
 From there, export it as `.bmp` like any other image.
 
