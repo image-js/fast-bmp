@@ -75,7 +75,9 @@ export default class BMPEncoder {
       this.bitsPerPixel !== 24 &&
       this.bitsPerPixel !== 32
     ) {
-      throw new Error('This number of bits per pixel is not supported.');
+      throw new Error(
+        `Invalid number of bits per pixel. Supported number of bits per pixel: 1, 8, 24, 32. Received: ${this.bitsPerPixel}`
+      );
     }
     this.channels = data.channels;
     this.components =
@@ -228,7 +230,15 @@ export default class BMPEncoder {
         this.colorMasks[2] !== 0x000000ff)
     ) {
       throw new Error(
-        'Unsupported color masks detected in 32-bit BMP image. Only standard RGBA (0x00ff0000, 0x0000ff00, 0x000000ff) masks are supported.'
+        `Unsupported color masks detected in 32-bit BMP image. Only standard RGBA (${(0x00ff0000).toString(
+          16
+        )}, ${(0x0000ff00).toString(16)}, ${(0x000000ff).toString(
+          16
+        )}) masks are supported. Received: ${this.colorMasks[0].toString(
+          16
+        )},${this.colorMasks[1].toString(16)},${this.colorMasks[2].toString(
+          16
+        )}.`
       );
     }
     this.encoded

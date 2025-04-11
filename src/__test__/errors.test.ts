@@ -54,7 +54,9 @@ describe('errors', () => {
   it('should throw if image is BI_BITFIELDS 16bit encoded', () => {
     expect(() => {
       decode(fs.readFileSync('src/__test__/files/custom16bit.bmp'));
-    }).toThrow(/This number of bits per pixel is not supported./i);
+    }).toThrow(
+      /Invalid number of bits per pixel. Supported number of bits per pixel: 1, 8, 24, 32. Received: 16/i
+    );
   });
 
   it('should throw if data is invalid', () => {
@@ -80,7 +82,9 @@ describe('errors', () => {
 
       data.bitsPerPixel = 10;
       encode(data);
-    }).toThrow(/This number of bits per pixel is not supported./i);
+    }).toThrow(
+      /Invalid number of bits per pixel. Supported number of bits per pixel: 1, 8, 24, 32. Received: 10/i
+    );
   });
 
   it('should throw if color masks are not supported during encoding', () => {
@@ -89,7 +93,7 @@ describe('errors', () => {
       image.writeUInt32LE(0x12345678, 58);
       decode(Buffer.from(image));
     }).toThrow(
-      /Unsupported color masks detected in 32-bit BMP image. Only standard RGBA \(0x00ff0000, 0x0000ff00, 0x000000ff\) masks are supported./i
+      /Unsupported color masks detected in 32-bit BMP image. Only standard RGBA \(ff0000, ff00, ff\) masks are supported. Received: ff0000,12345678,ff./i
     );
   });
 
@@ -104,7 +108,7 @@ describe('errors', () => {
     expect(() => {
       encode(data);
     }).toThrow(
-      /Unsupported color masks detected in 32-bit BMP image. Only standard RGBA \(0x00ff0000, 0x0000ff00, 0x000000ff\) masks are supported./i
+      /Unsupported color masks detected in 32-bit BMP image. Only standard RGBA \(ff0000, ff00, ff\) masks are supported. Received: 0,10,56./i
     );
   });
 });
