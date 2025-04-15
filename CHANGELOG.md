@@ -1,5 +1,19 @@
 # Changelog
 
+## [3.0.0](https://github.com/image-js/fast-bmp/compare/v2.0.1...v3.0.0) (2025-04-15)
+
+
+### ⚠ BREAKING CHANGES
+
+* renamed `bitDepth` to `bitsPerPixel`
+* In decoder's output data and encoder's input data, each pixel is now stored as 1 byte per pixel instead of 1 bit per pixel.
+
+### Features
+
+* add 1-bit image decoder ([0607b6b](https://github.com/image-js/fast-bmp/commit/0607b6bf9eef96f5bed6a6e1b7c5e14798aadf40))
+* add support for Greyscale, RGB and RGBA images ([3345bce](https://github.com/image-js/fast-bmp/commit/3345bceb2b8642c12275b9a358a6bfa9e7e037c4))
+* encode and decode resolution fields xPixelsPerMeter and yPixelsPerMeter ([f239678](https://github.com/image-js/fast-bmp/commit/f2396789567c19db8236325893880bf451e9df4f))
+
 ## [2.0.1](https://github.com/image-js/fast-bmp/compare/v2.0.0...v2.0.1) (2022-09-29)
 
 
