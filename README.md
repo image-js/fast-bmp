@@ -10,41 +10,87 @@
     Maintained by <a href="https://www.zakodium.com">Zakodium</a>
   </p>
 
-
 [![NPM version][npm-image]][npm-url]
 [![Test coverage][codecov-image]][codecov-url]
 [![npm download][download-image]][download-url]
 
 </h3>
 
+A library for encoding and decoding bmp image file format.
+References:
 
-A library for encoding bmp image file format.
+- [Wikipedia BMP format page](https://en.wikipedia.org/wiki/BMP_file_format)
+- [Microsoft BMPV5 format page](https://learn.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-bitmapv5header)
 
 # Supported features
 
-For now there is only support for 1-bit image encoding.
+This library only supports V5 headers.
+
+- binary (1-bit per pixel)
+- greyscale (8-bits per pixel)
+- RGB (24-bits per pixel)
+- RGBA (32-bits per pixel)
 
 # Usage
 
+## Encoding
+
 ```js
-const bmp = require('fast-bmp');
+import { encode } from 'fast-bmp';
 
 // 0 0 0 0 0
 // 0 1 1 1 0
 // 0 1 0 1 0
 // 0 1 1 1 0
 // 0 0 0 0 0
+const data = new Uint8Array([
+  0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0,
+]);
 const imageData = {
   width: 5,
   height: 5,
-  data: new Uint8Array([0b00000011, 0b10010100, 0b11100000, 0b00000000]),
-  bitDepth: 1,
+  data,
+  bitsPerPixel: 1,
   components: 1,
   channels: 1,
 };
 // Encode returns a Uint8Array.
-const encoded = bmp.encode(imageData);
+const encoded = encode(imageData);
 fs.writeFileSync('image.bmp', encoded);
+```
+
+## Decoding
+
+```ts
+import { decode } from 'fast-bmp';
+
+// 0 0 0 0 0
+// 0 1 1 1 0
+// 0 1 0 1 0
+// 0 1 1 1 0
+// 0 0 0 0 0
+const buffer = fs.writeFileSync('image.bmp');
+const imageData = decode(buffer);
+/* Returns object:
+{
+width: 5,
+height: 5,
+data: new Uint8Array([
+    0, 0, 0, 0, 0, 
+    0, 1, 1, 1, 0, 
+    0, 1, 0, 1, 0, 
+    0, 1, 1, 1, 0, 
+    0, 0, 0, 0, 0,
+  ]),
+bitsPerPixel: 1,
+components: 1,
+channels: 1,
+colorMasks: [0x00ff0000, 0x0000ff00, 0x000000ff],
+compression: 0,
+xPixelsPerMeter: 2835,
+yPixelsPerMeter: 2835,
+}
+*/
 ```
 
 [npm-image]: https://img.shields.io/npm/v/fast-bmp.svg?style=flat-square
