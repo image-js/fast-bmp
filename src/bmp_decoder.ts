@@ -1,6 +1,7 @@
+import type { InputData } from 'iobuffer';
 import { IOBuffer } from 'iobuffer';
 
-import type { ImageCodec } from './BMPEncoder';
+import type { ImageCodec } from './bmp_encoder.ts';
 
 export default class BMPDecoder {
   bufferData: IOBuffer;
@@ -12,12 +13,12 @@ export default class BMPDecoder {
   yPixelsPerMeter: number;
   compression: number;
   colorMasks: number[];
-  constructor(bufferData: Buffer) {
+  constructor(bufferData: InputData) {
     this.bufferData = new IOBuffer(bufferData);
     const formatCheck = this.bufferData.readBytes(2);
     if (formatCheck[0] !== 0x42 && formatCheck[1] !== 0x4d) {
       throw new Error(
-        'This is not a BMP image or the encoding is not correct.'
+        'This is not a BMP image or the encoding is not correct.',
       );
     }
     this.pixelDataOffset = this.bufferData.skip(8).readUint32();
@@ -31,13 +32,13 @@ export default class BMPDecoder {
       this.bitsPerPixel !== 32
     ) {
       throw new Error(
-        `Invalid number of bits per pixel. Supported number of bits per pixel: 1, 8, 24, 32. Received: ${this.bitsPerPixel}`
+        `Invalid number of bits per pixel. Supported number of bits per pixel: 1, 8, 24, 32. Received: ${this.bitsPerPixel}`,
       );
     }
     this.compression = this.bufferData.readUint32();
     if (this.compression !== 0 && this.compression !== 3) {
       throw new Error(
-        `Only BI_RGB and BI_BITFIELDS compression methods are allowed. `
+        `Only BI_RGB and BI_BITFIELDS compression methods are allowed. `,
       );
     }
 
@@ -55,14 +56,14 @@ export default class BMPDecoder {
     ) {
       throw new Error(
         `Unsupported color masks detected in 32-bit BMP image. Only standard RGBA (${(0x00ff0000).toString(
-          16
+          16,
         )}, ${(0x0000ff00).toString(16)}, ${(0x000000ff).toString(
-          16
+          16,
         )}) masks are supported. Received: ${this.colorMasks[0].toString(
-          16
+          16,
         )},${this.colorMasks[1].toString(16)},${this.colorMasks[2].toString(
-          16
-        )}.`
+          16,
+        )}.`,
       );
     }
     this.bufferData.skip(1); // skipping image size.
@@ -135,7 +136,7 @@ export default class BMPDecoder {
   private decodePixelsWithAlpha(
     data: Uint8Array,
     channels: number,
-    components: number
+    components: number,
   ) {
     for (let row = 0; row < this.height; row++) {
       const rowOffset = (this.height - row - 1) * this.width;

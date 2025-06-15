@@ -1,8 +1,9 @@
-import fs from 'node:fs';
+import { describe, expect, it } from 'vitest';
 
-import { decode, encode } from '..';
+import { decode, encode } from '../index.ts';
 
-import { createTestData } from './createTestData';
+import { createTestData } from './create_test_data.ts';
+import { readTestFile } from './read_test_file.js';
 
 describe('errors', () => {
   it('should throw if width or height are undefined or 0', () => {
@@ -39,23 +40,23 @@ describe('errors', () => {
 
   it('should throw if image is not bmp encoded', () => {
     expect(() => {
-      decode(fs.readFileSync('src/__test__/files/color-balance.png'));
+      decode(readTestFile('color-balance.png'));
     }).toThrow(/This is not a BMP image or the encoding is not correct./i);
   });
 
   it('should throw if bmp image is compressed', () => {
     expect(() => {
-      decode(fs.readFileSync('src/__test__/files/mt_rle.bmp'));
+      decode(readTestFile('mt_rle.bmp'));
     }).toThrow(
-      /Only BI_RGB and BI_BITFIELDS compression methods are allowed./i
+      /Only BI_RGB and BI_BITFIELDS compression methods are allowed./i,
     );
   });
 
   it('should throw if image is BI_BITFIELDS 16bit encoded', () => {
     expect(() => {
-      decode(fs.readFileSync('src/__test__/files/custom16bit.bmp'));
+      decode(readTestFile('custom16bit.bmp'));
     }).toThrow(
-      /Invalid number of bits per pixel. Supported number of bits per pixel: 1, 8, 24, 32. Received: 16/i
+      /Invalid number of bits per pixel. Supported number of bits per pixel: 1, 8, 24, 32. Received: 16/i,
     );
   });
 
@@ -83,19 +84,17 @@ describe('errors', () => {
       data.bitsPerPixel = 10;
       encode(data);
     }).toThrow(
-      /Invalid number of bits per pixel. Supported number of bits per pixel: 1, 8, 24, 32. Received: 10/i
+      /Invalid number of bits per pixel. Supported number of bits per pixel: 1, 8, 24, 32. Received: 10/i,
     );
   });
 
   it('should throw if color masks are not supported during encoding', () => {
     expect(() => {
-      const image = fs.readFileSync(
-        'src/__test__/files/GIMP_images/ColorGrid5x5.bmp'
-      );
+      const image = readTestFile('GIMP_images/ColorGrid5x5.bmp');
       image.writeUInt32LE(0x12345678, 58);
-      decode(Buffer.from(image));
+      decode(image);
     }).toThrow(
-      /Unsupported color masks detected in 32-bit BMP image. Only standard RGBA \(ff0000, ff00, ff\) masks are supported. Received: ff0000,12345678,ff./i
+      /Unsupported color masks detected in 32-bit BMP image. Only standard RGBA \(ff0000, ff00, ff\) masks are supported. Received: ff0000,12345678,ff./i,
     );
   });
 
@@ -110,7 +109,7 @@ describe('errors', () => {
     expect(() => {
       encode(data);
     }).toThrow(
-      /Unsupported color masks detected in 32-bit BMP image. Only standard RGBA \(ff0000, ff00, ff\) masks are supported. Received: 0,10,56./i
+      /Unsupported color masks detected in 32-bit BMP image. Only standard RGBA \(ff0000, ff00, ff\) masks are supported. Received: 0,10,56./i,
     );
   });
 });

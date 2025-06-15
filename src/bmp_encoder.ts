@@ -1,6 +1,6 @@
 import { IOBuffer } from 'iobuffer';
 
-import { BITMAPV5HEADER } from './constants';
+import { BITMAPV5HEADER } from './constants.ts';
 
 export interface ImageCodec {
   /**
@@ -76,7 +76,7 @@ export default class BMPEncoder {
       this.bitsPerPixel !== 32
     ) {
       throw new Error(
-        `Invalid number of bits per pixel. Supported number of bits per pixel: 1, 8, 24, 32. Received: ${this.bitsPerPixel}`
+        `Invalid number of bits per pixel. Supported number of bits per pixel: 1, 8, 24, 32. Received: ${this.bitsPerPixel}`,
       );
     }
     this.channels = data.channels;
@@ -146,7 +146,7 @@ export default class BMPEncoder {
       for (let col = 0; col < this.width; col++) {
         for (let channel = this.channels - 1; channel >= 0; channel--) {
           this.encoded.writeByte(
-            this.data[rowOffset + col * this.channels + channel]
+            this.data[rowOffset + col * this.channels + channel],
           );
         }
       }
@@ -165,7 +165,7 @@ export default class BMPEncoder {
             (this.data[pixelIndex + 2] << (3 * 8)) |
             (this.data[pixelIndex + 1] << (2 * 8)) |
             (this.data[pixelIndex] << 8) |
-            this.data[pixelIndex + 3]
+            this.data[pixelIndex + 3],
         );
       }
     }
@@ -191,7 +191,7 @@ export default class BMPEncoder {
       //Grayscale 8 bit
       for (let i = 0; i < 256; i++) {
         this.encoded.writeUint32(
-          0x00000000 | (i << (4 * 4)) | (i << (2 * 4)) | i
+          0x00000000 | (i << (4 * 4)) | (i << (2 * 4)) | i,
         );
       }
     }
@@ -231,14 +231,14 @@ export default class BMPEncoder {
     ) {
       throw new Error(
         `Unsupported color masks detected in 32-bit BMP image. Only standard RGBA (${(0x00ff0000).toString(
-          16
+          16,
         )}, ${(0x0000ff00).toString(16)}, ${(0x000000ff).toString(
-          16
+          16,
         )}) masks are supported. Received: ${this.colorMasks[0].toString(
-          16
+          16,
         )},${this.colorMasks[1].toString(16)},${this.colorMasks[2].toString(
-          16
-        )}.`
+          16,
+        )}.`,
       );
     }
     this.encoded
