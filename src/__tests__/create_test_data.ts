@@ -1,5 +1,5 @@
-import type { ImageCodec } from '../BMPEncoder';
-import { BITMAPV5HEADER } from '../constants';
+import type { ImageCodec } from '../bmp_encoder.ts';
+import { BITMAPV5HEADER } from '../constants.ts';
 
 interface CreateTestDataOptions {
   /**
@@ -36,7 +36,7 @@ type ColorModel = 'BINARY' | 'GREYSCALE' | 'RGB' | 'RGBA';
  */
 export function createTestData(options: CreateTestDataOptions): ImageCodec {
   const { channels, components, bitsPerPixel } = getChannelsData(
-    options.colorModel
+    options.colorModel,
   );
   const compression = options.compression ?? 0;
   const colorMasks = options.colorMasks ?? [0x00ff0000, 0x0000ff00, 0x000000ff];

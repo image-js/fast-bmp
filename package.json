@@ -1,48 +1,49 @@
 {
   "name": "fast-bmp",
   "version": "3.0.0",
-  "description": "A bmp image encoder",
-  "main": "./lib/index.js",
-  "module": "./lib-esm/index.js",
-  "types": "./lib/index.d.ts",
-  "repository": "git@github.com:image-js/fast-bmp.git",
-  "author": "Daniel Kostro <kostro.d@gmail.com>",
   "license": "MIT",
+  "description": "A BMP image decoder and encoder",
+  "author": "Daniel Kostro",
+  "type": "module",
+  "exports": "./lib/index.js",
   "files": [
-    "src",
     "lib",
-    "lib-esm"
+    "src"
   ],
+  "scripts": {
+    "check-types": "tsc --noEmit",
+    "clean": "rimraf coverage lib",
+    "eslint": "eslint .",
+    "eslint-fix": "eslint --fix .",
+    "prepack": "npm run tsc",
+    "prettier": "prettier --check .",
+    "prettier-write": "prettier --write .",
+    "test": "npm run test-only && npm run check-types && npm run eslint && npm run prettier",
+    "test-only": "vitest run --coverage",
+    "test-write": "FAST_BMP_WRITE_DATA_FILES=1 npm run test-only",
+    "tsc": "npm run clean && npm run tsc-build",
+    "tsc-build": "tsc --project tsconfig.build.json"
+  },
   "dependencies": {
-    "iobuffer": "^5.4.0"
+    "iobuffer": "^6.0.0"
   },
   "devDependencies": {
-    "@babel/plugin-transform-modules-commonjs": "^7.26.3",
-    "@babel/preset-typescript": "^7.26.0",
-    "@types/jest": "^29.5.14",
-    "eslint": "^9.21.0",
-    "eslint-config-cheminfo-typescript": "^17.0.0",
-    "jest": "^29.1.1",
-    "prettier": "^2.7.1",
+    "@types/node": "^24.0.1",
+    "@vitest/coverage-v8": "^3.2.3",
+    "@zakodium/tsconfig": "^1.0.1",
+    "eslint": "^9.29.0",
+    "eslint-config-cheminfo-typescript": "^18.0.1",
+    "prettier": "^3.5.3",
     "rimraf": "^6.0.1",
-    "typescript": "^5.8.2"
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.3"
   },
-  "scripts": {
-    "eslint": "eslint src",
-    "eslint-fix": "eslint --fix src",
-    "prettier": "prettier --check src",
-    "prettier-write": "prettier --write src",
-    "test": "npm run test-only && npm run eslint && npm run prettier && npm run check-types",
-    "test-only": "jest --coverage",
-    "test-write": "FAST_BMP_WRITE_DATA_FILES=1 npm run test-only",
-    "check-types": "tsc --noEmit",
-    "clean": "rimraf lib lib-esm",
-    "prepack": "npm run tsc",
-    "tsc": "npm run clean && npm run tsc-cjs && npm run tsc-esm",
-    "tsc-cjs": "tsc --project tsconfig.cjs.json",
-    "tsc-esm": "tsc --project tsconfig.esm.json"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/image-js/fast-bmp.git"
   },
-  "jest": {
-    "testEnvironment": "node"
-  }
+  "bugs": {
+    "url": "https://github.com/image-js/fast-bmp/issues"
+  },
+  "homepage": "https://image-js.github.io/fast-bmp/"
 }

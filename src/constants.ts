@@ -26,4 +26,4 @@ export const BITMAPV5HEADER = {
   },
   // legacy resolution (72 dpi)
   DEFAULT_PIXELS_PER_METER: 2835,
-};
+} as const;

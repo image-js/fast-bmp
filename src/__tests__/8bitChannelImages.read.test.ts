@@ -1,10 +1,11 @@
-import fs from 'node:fs';
+import { describe, it } from 'vitest';
 
-import { decode } from '..';
+import { decode } from '../index.ts';
 
-import { createTestData } from './createTestData';
-import { testDecode } from './testDecode';
-import { testEncode } from './testEncode';
+import { createTestData } from './create_test_data.ts';
+import { readTestFile } from './read_test_file.js';
+import { testDecode } from './test_decode.ts';
+import { testEncode } from './test_encode.ts';
 
 describe('decode image with bitDepth of 1', () => {
   it('decode a 2x2 RGBA image', () => {
@@ -57,7 +58,7 @@ describe('decode image with bitDepth of 1', () => {
           [255, 0, 0],
           [0, 255, 0],
           [0, 0, 255],
-        ].flat()
+        ].flat(),
       ),
     });
     testDecode(data, '1x6RGB.bmp');
@@ -74,15 +75,13 @@ describe('decode image with bitDepth of 1', () => {
           [110, 110, 110, 110, 110, 110],
           [0, 0, 0, 255, 255, 255],
           [0, 50, 100, 150, 200, 250],
-        ].flat()
+        ].flat(),
       ),
     });
     testDecode(data, '6x4Grey.bmp');
   });
   it('checks BI_BITFIELDS compression decoding', () => {
-    const imageData = decode(
-      fs.readFileSync('src/__test__/files/GIMP_images/ColorGrid5x5.bmp')
-    );
+    const imageData = decode(readTestFile('GIMP_images/ColorGrid5x5.bmp'));
     testEncode(imageData, 'ColorGrid5x5.bmp');
   });
 });

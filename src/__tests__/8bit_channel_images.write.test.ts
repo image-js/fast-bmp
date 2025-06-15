@@ -1,5 +1,7 @@
-import { createTestData } from './createTestData';
-import { testEncode } from './testEncode';
+import { describe, it } from 'vitest';
+
+import { createTestData } from './create_test_data.ts';
+import { testEncode } from './test_encode.ts';
 
 describe('decode image with bitDepth of 1', () => {
   it('decode an RGBA 2x2  image', () => {
@@ -14,7 +16,7 @@ describe('decode image with bitDepth of 1', () => {
         [
           [255, 0, 0, 255, 0, 255, 0, 255],
           [0, 0, 255, 255, 255, 255, 255, 255],
-        ].flat()
+        ].flat(),
       ),
     });
     testEncode(data, '2x2RGBA.bmp');
@@ -52,7 +54,7 @@ describe('decode image with bitDepth of 1', () => {
           [255, 0, 0],
           [0, 255, 0],
           [0, 0, 255],
-        ].flat()
+        ].flat(),
       ),
     });
     testEncode(data, '1x6RGB.bmp');
@@ -69,7 +71,7 @@ describe('decode image with bitDepth of 1', () => {
           [110, 110, 110, 110, 110, 110],
           [0, 0, 0, 255, 255, 255],
           [0, 50, 100, 150, 200, 250],
-        ].flat()
+        ].flat(),
       ),
     });
     testEncode(data, '6x4Grey.bmp');

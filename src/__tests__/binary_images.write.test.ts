@@ -1,7 +1,9 @@
-import { encode, decode } from '..';
+import { describe, expect, it } from 'vitest';
 
-import { createTestData } from './createTestData';
-import { testEncode } from './testEncode';
+import { decode, encode } from '../index.ts';
+
+import { createTestData } from './create_test_data.ts';
+import { testEncode } from './test_encode.ts';
 
 describe('encode image with bitDepth of 1', () => {
   it('encode a 5x5 image', () => {
@@ -21,7 +23,7 @@ describe('encode image with bitDepth of 1', () => {
           [0, 1, 0, 1, 0],
           [0, 1, 1, 1, 0],
           [0, 0, 0, 0, 0],
-        ].flat()
+        ].flat(),
       ),
     });
     testEncode(data, '5x5.bmp');
@@ -65,7 +67,7 @@ describe('encode image with bitDepth of 1', () => {
           [0, 0, 0, 0, 0, 0],
           [1, 1, 1, 1, 1, 1],
           [0, 0, 0, 0, 0, 0],
-        ].flat()
+        ].flat(),
       ),
     });
     testEncode(data, '6x4.bmp');
@@ -98,7 +100,7 @@ describe('encode image with bitDepth of 1', () => {
             0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
           ],
-        ].flat()
+        ].flat(),
       ),
     });
     testEncode(data, '62x4.bmp');
@@ -135,7 +137,7 @@ describe('encode image with bitDepth of 1', () => {
             1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0,
           ],
-        ].flat()
+        ].flat(),
       ),
     });
     testEncode(data, '32x2.bmp');
@@ -156,7 +158,7 @@ describe('encode image with bitDepth of 1', () => {
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1,
             1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
           ],
-        ].flat()
+        ].flat(),
       ),
     });
     testEncode(data, '42x2.bmp');
@@ -188,7 +190,7 @@ describe('encode image with bitDepth of 1', () => {
             1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
             1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
           ],
-        ].flat()
+        ].flat(),
       ),
     });
 
@@ -221,11 +223,11 @@ describe('encode image with bitDepth of 1', () => {
             1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
             1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
           ],
-        ].flat()
+        ].flat(),
       ),
     });
     const encodedImage = encode(data);
-    const decodedImage = decode(Buffer.from(encodedImage));
+    const decodedImage = decode(encodedImage);
 
     expect(decodedImage).toEqual(data);
   });
@@ -242,7 +244,7 @@ describe('encode image with bitDepth of 1', () => {
           [0, 1, 0, 1, 0],
           [0, 1, 1, 1, 0],
           [0, 0, 0, 0, 0],
-        ].flat()
+        ].flat(),
       ),
       bitsPerPixel: 1,
       components: 1,
