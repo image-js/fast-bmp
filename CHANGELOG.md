@@ -1,5 +1,16 @@
 # Changelog
 
+## [4.0.0](https://github.com/image-js/fast-bmp/compare/v3.0.0...v4.0.0) (2025-06-15)
+
+
+### ⚠ BREAKING CHANGES
+
+* migrate to ESM ([#23](https://github.com/image-js/fast-bmp/issues/23))
+
+### Code Refactoring
+
+* migrate to ESM ([#23](https://github.com/image-js/fast-bmp/issues/23)) ([a1dcda6](https://github.com/image-js/fast-bmp/commit/a1dcda6461407f0f72c7f0b2ff94e3377e722216))
+
 ## [3.0.0](https://github.com/image-js/fast-bmp/compare/v2.0.1...v3.0.0) (2025-04-15)
 
 
