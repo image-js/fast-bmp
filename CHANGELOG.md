@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.0.1](https://github.com/image-js/fast-bmp/compare/v4.0.0...v4.0.1) (2025-08-13)
+
+
+### Bug Fixes
+
+* exports ([#26](https://github.com/image-js/fast-bmp/issues/26)) ([2b196de](https://github.com/image-js/fast-bmp/commit/2b196ded7eb25ced2a103bfd861c2558505cf44a))
+
 ## [4.0.0](https://github.com/image-js/fast-bmp/compare/v3.0.0...v4.0.0) (2025-06-15)
 
 
