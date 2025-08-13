@@ -7,6 +7,8 @@ import { testDecode } from './test_decode.ts';
 
 describe('decode image with bitDepth of 1', () => {
   it('decode a 5x5 image', () => {
+    expect.assertions(1);
+
     // 0 0 0 0 0
     // 0 1 1 1 0
     // 0 1 0 1 0
@@ -30,6 +32,8 @@ describe('decode image with bitDepth of 1', () => {
   });
 
   it('decode a 1x5 image', () => {
+    expect.assertions(1);
+
     // 0
     // 1
     // 0
@@ -46,6 +50,8 @@ describe('decode image with bitDepth of 1', () => {
   });
 
   it('decode a 5x1 image', () => {
+    expect.assertions(1);
+
     // 1 0 1 0 0
     const data = createTestData({
       colorModel: 'BINARY',
@@ -57,6 +63,8 @@ describe('decode image with bitDepth of 1', () => {
   });
 
   it('decode a 6x4 image', () => {
+    expect.assertions(1);
+
     const data = createTestData({
       colorModel: 'BINARY',
       width: 6,
@@ -74,6 +82,8 @@ describe('decode image with bitDepth of 1', () => {
   });
 
   it('decode a 62x4', () => {
+    expect.assertions(1);
+
     const data = createTestData({
       colorModel: 'BINARY',
       width: 62,
@@ -107,9 +117,10 @@ describe('decode image with bitDepth of 1', () => {
   });
 
   it('decode a 10x2 image', () => {
+    expect.assertions(1);
+
     // 1 1 1 0 0 1 0 1 0 1
     // 1 0 1 0 1 0 0 1 1 1
-
     const data = createTestData({
       colorModel: 'BINARY',
       width: 10,
@@ -125,6 +136,8 @@ describe('decode image with bitDepth of 1', () => {
   });
 
   it('decode image with exactly 4 bytes width', () => {
+    expect.assertions(1);
+
     const data = createTestData({
       colorModel: 'BINARY',
       width: 32,
@@ -146,6 +159,8 @@ describe('decode image with bitDepth of 1', () => {
   });
 
   it('decode image with more that 4 bytes width', () => {
+    expect.assertions(1);
+
     const data = createTestData({
       colorModel: 'BINARY',
       width: 42,
@@ -167,6 +182,8 @@ describe('decode image with bitDepth of 1', () => {
   });
 
   it('decode image where skipBit can equal relOffset on the last column', () => {
+    expect.assertions(1);
+
     const data = createTestData({
       colorModel: 'BINARY',
       width: 60,
@@ -216,6 +233,7 @@ describe('decode image with bitDepth of 1', () => {
     });
     const encodedImage = encode(data);
     const decodedData = decode(encodedImage);
-    expect(decodedData).toEqual(data);
+
+    expect(decodedData).toStrictEqual(data);
   });
 });
