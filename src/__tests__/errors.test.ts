@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, test } from 'vitest';
 
 import { decode, encode } from '../index.ts';
 
@@ -67,6 +67,7 @@ describe('errors', () => {
       height: 5,
       data: new Uint8Array([1, 1, 1, 1, 1]),
     });
+
     expect(() => {
       encode(data);
     }).toThrow(/Invalid data length./i);
@@ -106,6 +107,7 @@ describe('errors', () => {
       data: new Uint8Array([1, 1, 1, 1]),
       colorMasks: [0x0, 0x10, 0x56],
     });
+
     expect(() => {
       encode(data);
     }).toThrow(
@@ -114,7 +116,7 @@ describe('errors', () => {
   });
 });
 
-it('should throw if colorModel is invalid for test data', () => {
+test('should throw if colorModel is invalid for test data', () => {
   expect(() => {
     createTestData({
       //@ts-expect-error Invalid color model.

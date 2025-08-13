@@ -9,6 +9,7 @@ describe('decode image with bit depth of 8', () => {
     const buffer = readTestFile('GIMP_images/gray5x5.bmp');
     const imageResult = decode(buffer);
     const encodedImage = encode(imageResult);
+
     expect(Buffer.from(encodedImage)).toStrictEqual(buffer);
   });
 
@@ -16,6 +17,7 @@ describe('decode image with bit depth of 8', () => {
     const buffer = readTestFile('GIMP_images/lena.bmp');
     const imageResult = decode(buffer);
     const encodedImage = encode(imageResult);
+
     expect(Buffer.from(encodedImage)).toStrictEqual(buffer);
   });
 
@@ -23,6 +25,7 @@ describe('decode image with bit depth of 8', () => {
     const buffer = readTestFile('GIMP_images/blackbuck.bmp');
     const imageResult = decode(buffer);
     const encodedBuffer = encode(imageResult);
+
     expect(Buffer.from(encodedBuffer)).toStrictEqual(buffer);
   });
 
@@ -30,6 +33,7 @@ describe('decode image with bit depth of 8', () => {
     const buffer = readTestFile('GIMP_images/bmp_24.bmp');
     const imageResult = decode(buffer);
     const encodedBuffer = encode(imageResult);
+
     expect(Buffer.from(encodedBuffer)).toStrictEqual(buffer);
   });
 
@@ -37,6 +41,7 @@ describe('decode image with bit depth of 8', () => {
     const buffer = readTestFile('GIMP_images/ColorGrid5x5.bmp');
     const imageResult = decode(buffer);
     const encodedBuffer = encode(imageResult);
+
     expect(Buffer.from(encodedBuffer)).toStrictEqual(buffer);
   });
 });

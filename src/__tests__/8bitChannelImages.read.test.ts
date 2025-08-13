@@ -1,4 +1,4 @@
-import { describe, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import { decode } from '../index.ts';
 
@@ -9,6 +9,8 @@ import { testEncode } from './test_encode.ts';
 
 describe('decode image with bitDepth of 1', () => {
   it('decode a 2x2 RGBA image', () => {
+    expect.assertions(1);
+
     // R G
     // B W
     const data = createTestData({
@@ -27,6 +29,8 @@ describe('decode image with bitDepth of 1', () => {
   });
 
   it('decode an RGB 5x1 image', () => {
+    expect.assertions(1);
+
     // R R R R R
     const data = createTestData({
       colorModel: 'RGB',
@@ -40,6 +44,8 @@ describe('decode image with bitDepth of 1', () => {
   });
 
   it('decode a 1x6RGB image', () => {
+    expect.assertions(1);
+
     // R
     // G
     // B
@@ -65,6 +71,8 @@ describe('decode image with bitDepth of 1', () => {
   });
 
   it('decode a 6x4 grey image', () => {
+    expect.assertions(1);
+
     const data = createTestData({
       colorModel: 'GREYSCALE',
       width: 6,
@@ -80,7 +88,10 @@ describe('decode image with bitDepth of 1', () => {
     });
     testDecode(data, '6x4Grey.bmp');
   });
+
   it('checks BI_BITFIELDS compression decoding', () => {
+    expect.assertions(1);
+
     const imageData = decode(readTestFile('GIMP_images/ColorGrid5x5.bmp'));
     testEncode(imageData, 'ColorGrid5x5.bmp');
   });
